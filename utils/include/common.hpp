@@ -3,12 +3,13 @@
  * Defines lots of static functions to query device and
  * set modes for evaluation.
  * @hanyug: Need to put some more general functions in the class.
+ * @akulshr: Add cuda error checking macros in here.
  */
 #include <iostream>
 #include <vector>
 #include <cstdlib>
 
-
+#include <helper_cuda.h>
 class Creatine {
 private:
   bool _gpu_mode, _cpu_mode; // set flags specifying execution state
