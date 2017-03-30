@@ -58,6 +58,10 @@ void Matrix::_elemWiseLoop(double (*func)(double, double, double), const Matrix 
   }
 }
 
+void Matrix::assign(double* data) {
+  _data = data;
+}
+
 void Matrix::add(const Matrix &m, const double scale, Matrix &target) {
   assert(this->sameDim(m));
   _elemWiseLoop(&_add, m, scale, target);
@@ -90,6 +94,12 @@ void Matrix::rightMult(const Matrix &m, const double scale, Matrix &target) {
 // target = this * m
 void Matrix::rightMult(const Matrix &m, Matrix &target) {
   rightMult(m, 1, target);
+}
+
+void Matrix::rightMultPlus(const Matrix &m, const Matrix &p, Matrix &target) {
+  Matrix tempM(target);
+  rightMult(m, 1, tempM);
+  tempM.add(p, target);
 }
 
 void Matrix::Product(const Matrix &a, const Matrix &b, double scaleAB, Matrix &c) {

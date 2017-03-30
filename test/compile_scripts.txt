@@ -1,0 +1,5 @@
+t_matrix.cpp:
+g++ -Wall -o t_matrix ../src/matrix.cpp   t_matrix.cpp -lcblas
+
+t_layer.cpp:
+g++ -Wall -o t_layer ../src/matrix.cpp  ../src/layers/layer.cpp t_layer.cpp -lcblas

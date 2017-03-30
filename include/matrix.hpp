@@ -7,6 +7,7 @@
 #include <string.h>
 #include <math.h>
 #include <vector>
+#include <iostream> //for debugging
 extern "C" {
   #include <cblas.h>
 }
@@ -50,12 +51,12 @@ public:
     return _numElements;
   }
   inline bool sameDim(const Matrix &m) const {
-    if (m.getNumRows() == getNumRows() && m.getNumCols() == getNumRows())
+    if (m.getNumRows() == getNumRows() && m.getNumCols() == getNumCols())
       return true;
     else 
       return false;
   }
-
+  void assign(double* data);
   void add(const Matrix &m, const double scale, Matrix &target);  //basic addition
   void add(const double scale, Matrix &target);
   void add(const Matrix &m, Matrix &target);
@@ -64,6 +65,7 @@ public:
   void Product(const Matrix &a, const Matrix &b, double scaleAB, Matrix &c);
   void rightMult(const Matrix &m, const double scale, Matrix &target);
   void rightMult(const Matrix &m, Matrix &target);
+  void rightMultPlus(const Matrix &m, const Matrix &p, Matrix &target);
 
   ~Matrix();
 };
