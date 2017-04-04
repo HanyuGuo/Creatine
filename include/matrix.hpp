@@ -20,6 +20,7 @@ private:
   int64 _numRows, _numCols;
   int64 _numElements;
   void _init(double* data, int64 numRows, int64 numCols);
+  void _elemWiseLoop(double (*func)(double), Matrix& target);
   void _elemWiseLoop(double (*func)(double, double), const double scale, Matrix& target);
   void _elemWiseLoop(double (*func)(double, double), const Matrix &m, Matrix& target);
   void _elemWiseLoop(double (*func)(double, double), const Matrix &m, const double scale, Matrix& target);
@@ -66,6 +67,9 @@ public:
   void rightMult(const Matrix &m, const double scale, Matrix &target);
   void rightMult(const Matrix &m, Matrix &target);
   void rightMultPlus(const Matrix &m, const Matrix &p, Matrix &target);
+  void eltwiseDivideByScale(const double scale, Matrix &target);
+  void exp(Matrix &target);
+  void reduce_sum(double &sum); // only do all to one currently
 
   ~Matrix();
 };

@@ -45,18 +45,19 @@ ip_layer::~ip_layer() {
  delete _input;
  delete _parGrads;
 }
+
 /*-------------------------fc layer-------------------------*/
 
 void fc_layer::_init(int64 input_s, int64 output_s, bool biasThis) {
   assert(input_s >= 0 && output_s >=0);
   _input = new Matrix(input_s, 1);
   _output = new Matrix(output_s, 1);
-  double* weight_init = new double[9];
-  double* bias_init = new double[3];
-  for (int i=0; i<9; i++) {
+  weight_init = new double[input_s * output_s];
+  bias_init = new double[output_s];
+  for (int i=0; i<input_s * output_s; i++) {
   	weight_init[i] = 1;
   }
-  for (int i=0; i<3; i++) {
+  for (int i=0; i<output_s; i++) {
   	bias_init[i] = 1;
   }
   _weight = new Matrix(weight_init, input_s, output_s);
@@ -103,4 +104,58 @@ fc_layer::~fc_layer() {
   delete _bias;
   delete _parGrads_w;
   delete _parGrads_b;
+  delete weight_init;
+  delete bias_init;
 }
+
+
+/*-------------------------softmax layer-------------------------*/
+
+void softmax_layer::_init(int64 input_s){
+  assert(input_s >= 0);
+  _input = new Matrix(input_s, 1);
+  _output = new Matrix(input_s, 1);
+  _parGrads = new Matrix(input_s, 1);
+  _temp_exp = new Matrix(3,1);
+  _temp_exp_sum = new double;
+}
+
+softmax_layer::softmax_layer() {
+  _init(0);
+}
+
+softmax_layer::softmax_layer(int64 input_s) {
+  _init(input_s);
+}
+
+void softmax_layer::feed(Matrix* input) {
+  _input = input; 
+}
+
+void softmax_layer::forward(PASS_TYPE pass_type) {
+  _input->exp(*_temp_exp);
+  _temp_exp->reduce_sum(*_temp_exp_sum);
+  _temp_exp->eltwiseDivideByScale(*_temp_exp_sum, *_output);
+}
+
+void softmax_layer::backward(PASS_TYPE pass_type) {
+
+}
+
+Matrix* softmax_layer::getFprop() {
+  return _output;
+}
+
+Matrix* softmax_layer::getBprop() {
+  return _parGrads;
+}
+
+softmax_layer::~softmax_layer() {
+  delete _input;
+  delete _output;
+  delete _parGrads;
+  delete _temp_exp_sum;
+  delete _temp_exp;
+}
+
+

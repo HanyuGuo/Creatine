@@ -26,6 +26,14 @@ Matrix::Matrix(double* data, int64 numRows, int64 numCols) {
   _init(data, numRows, numCols);
 }
 
+void Matrix::_elemWiseLoop(double (*func)(double), Matrix& target) {
+  for (int64 i=0; i < getNumRows(); i++) {
+    for (int64 j=0; j < getNumCols(); j++) {
+      target(i, j) = (*func)((*this)(i,j));
+    }
+  }
+}
+
 void Matrix::_elemWiseLoop(double (*func)(double, double), const double scale, Matrix &target) {
   for (int64 i=0; i < getNumRows(); i++) {
     for (int64 j=0; j < getNumCols(); j++) {
@@ -107,6 +115,22 @@ void Matrix::Product(const Matrix &a, const Matrix &b, double scaleAB, Matrix &c
   assert(c.getNumRows() == a.getNumRows() && c.getNumCols() == b.getNumCols());
   cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, a._numRows, b._numCols, a._numCols, scaleAB, a._data,
     a._numCols, b._data, b._numCols, 1, c._data, c._numCols);
+}
+
+void Matrix::eltwiseDivideByScale(const double scale, Matrix &target) {
+  _elemWiseLoop(&_divide, scale, target);
+}
+
+void Matrix::exp(Matrix &target) {
+  _elemWiseLoop(&_exp, target);
+}
+
+void Matrix::reduce_sum(double &sum) {
+  for (int64 i=0; i < getNumRows(); i++) {
+    for (int64 j=0; j < getNumCols(); j++) {
+      sum = sum + (*this)(i,j);
+    }
+  }
 }
 
 
