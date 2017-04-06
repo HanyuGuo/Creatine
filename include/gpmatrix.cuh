@@ -1,11 +1,12 @@
 #ifndef GPMATRIX_HPP_
 #define GPMATRIX_HPP_ 
-
+#include <iostream>
+#include <fstream>
 #include <cuda.h>
 #include <cublas_v2.h>
 //#include <helper_cuda.h>
 #include <cmath>
-#include <iostream>
+
 
 // #define cudaCheckError() __cudaCheckError(__FILE__,__LINE__)
 // #define cudaSafeCall(err) __cudaSafeCall(err,__FILE__,__LINE__)
@@ -115,7 +116,7 @@ public:
  }
   
   bool checkContiguous() const {
-  	stride == getLeadingDim() || getFollowingDim() == 1; // for vectors. 
+  	return stride == getLeadingDim() || getFollowingDim() == 1; // for vectors. 
   }
    // void makeTrans(bool trans){
    // 	 if (trans != _isTrans)
@@ -124,11 +125,6 @@ public:
    // 	 }
    // }
 void checkEqual(const GpMatrix &a, const GpMatrix &b) const; // check if matrices are equal
-//void cpfromHost(Matrix &hostMat) const; 
-//void cptoHost(Matrix & mat) const; //copy the gpmatrix to the host matrix.
-
-// void template<class Uopertor> applyUoperator(Uoperator op, GpMatrix & a); // perform unaryoperator on the specified matrix
-// void template<class Boperator> applyBoperator(Boperator op, GpMatrix &a, GpMatrix &b); // perform binary operation on the specified matrices.
 void resize(int Rows, int Cols); // resize the matrix according to the given dimensions.
 void matCheckBounds(int numRows, int numCols) const;
 
