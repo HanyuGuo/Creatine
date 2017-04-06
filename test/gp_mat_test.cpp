@@ -1,7 +1,6 @@
+#include "../include/gpmatrix.cuh"
 #include <iostream>
 #include <vector>
-#include "../include/gpmatrix.cuh"
-
 
 
 int main(int argc, char  *argv[])

@@ -61,32 +61,32 @@ static int GpMatrix::getDeviceID() {
 /* copy the Gpu matrix to host 
    Note: This assumes that the Matrix type has similar API to GpMatrix.
 */
-void GpMatrix::cptoHost(Matrix &mat) const{ 
-    assert(checkeqDims(mat));
-    if (getNumElements() > 0)
-    {
-    	 cuBlasStatus_t stat = cublasGetMatrix(getnumRows(),getNumCols(), getnumElements(),
-    									  _deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
-    if (stat != CUBLAS_STATUS_SUCCESS)
-    {
-    	cuBlaserrcheck("Couldn't write to host memory, read failure \n");
-    }
-    }
+// void GpMatrix::cptoHost(Matrix &mat) const{ 
+//     assert(checkeqDims(mat));
+//     if (getNumElements() > 0)
+//     {
+//     	 cuBlasStatus_t stat = cublasGetMatrix(getnumRows(),getNumCols(), getnumElements(),
+//     									  _deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
+//     if (stat != CUBLAS_STATUS_SUCCESS)
+//     {
+//     	cuBlaserrcheck("Couldn't write to host memory, read failure \n");
+//     }
+//     }
    
-}
+// }
 
-void GpMatrix::cpfromHost(Matrix &mat) const{
-  assert(checkeqDims(mat));
-    if (getNumElements() > 0)
-    {
-    	 cuBlasStatus_t stat = cublasSetMatrix(getnumRows(),getNumCols(), getnumElements(),
-    									  _deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
-    if (stat != CUBLAS_STATUS_SUCCESS)
-    {
-    	cuBlaserrcheck("Couldn't read from host memory, write failure \n");
-    }
-    }
-}
+// void GpMatrix::cpfromHost(Matrix &mat) const{
+//   assert(checkeqDims(mat));
+//     if (getNumElements() > 0)
+//     {
+//     	 cuBlasStatus_t stat = cublasSetMatrix(getnumRows(),getNumCols(), getnumElements(),
+//     									  _deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
+//     if (stat != CUBLAS_STATUS_SUCCESS)
+//     {
+//     	cuBlaserrcheck("Couldn't read from host memory, write failure \n");
+//     }
+//     }
+// }
 
 // bool GpMatrix::checkContiguous(const GpMatrix &mat) {
 

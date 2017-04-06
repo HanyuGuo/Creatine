@@ -5,24 +5,25 @@
 #include <cublas_v2.h>
 #include <helper_cuda.h>
 #include <cmath>
+#include <iostream>
 
-#define cudaCheckError() __cudaCheckError(__FILE__,__LINE__)
-#define cudaSafeCall(err) __cudaSafeCall(err,__FILE__,__LINE__)
+// #define cudaCheckError() __cudaCheckError(__FILE__,__LINE__)
+// #define cudaSafeCall(err) __cudaSafeCall(err,__FILE__,__LINE__)
 
-inline void __cudaSafeCall(cudaError err,const char*file,const int line) {
-   if(cudaSuccess != err) {
-    fprintf(stderr,"cudaSafeCall() failed at %s:%i: %s\n",file,line,cudaGetErrorString(err));
-    exit(-1);
-   }
- }
+// inline void __cudaSafeCall(cudaError err,const char*file,const int line) {
+//    if(cudaSuccess != err) {
+//     fprintf(stderr,"cudaSafeCall() failed at %s:%i: %s\n",file,line,cudaGetErrorString(err));
+//     exit(-1);
+//    }
+//  }
 
-inline void __cudaCheckError(const char*file,const int line) {
-   cudaError err = cudaGetLastError();
-   if(cudaSuccess != err) {
-      printf("cudaCheckError() failed at %s:%i :%s \n", file,line,cudaGetErrorString(err));
-      exit(-1);
-    }
-  }
+// inline void __cudaCheckError(const char*file,const int line) {
+//    cudaError err = cudaGetLastError();
+//    if(cudaSuccess != err) {
+//       printf("cudaCheckError() failed at %s:%i :%s \n", file,line,cudaGetErrorString(err));
+//       exit(-1);
+//     }
+//   }
 
 
 /*
@@ -73,7 +74,7 @@ public:
   	 return _isTrans ? 'n':'t';
   }
 
-   bool checkeqDims(const Matrix &mat) const {
+   bool checkeqDims(const GpMatrix &mat) const {
    	return mat.getnumRows() == _numRows && mat.getNumCols() == _numCols;
    }
   
@@ -87,7 +88,7 @@ public:
 
 
    int getnumElements() const {
-   	 return _numElements;
+   	 return _n_elem;
    }
 
    double *getDevData() const {
@@ -98,18 +99,18 @@ public:
        if(_isTrans)
        	return &_deviceData[j*_numRows+i];
        else
-       	retunr &_deviceData[i*_numRows+j];
+       	retun &_deviceData[i*_numRows+j];
    }
 
    int getStride() const {
      return stride;
    }
 
-   int getLeadingDim(GpMatrix &gp) const {
+   int getLeadingDim() const {
    	 return _isTrans ? _numRows : _numCols;
    }
    
-   int getFollowingDim(GpMatrix &gp) const {
+   int getFollowingDim() const {
      return _isTrans? _numCols: _numRows;   
  }
 
@@ -127,8 +128,8 @@ public:
    // 	 }
    // }
 void checkEqual(const GpMatrix &a, const GpMatrix &b) const; // check if matrices are equal
-void cpfromHost(Matrix &hostMat) const; 
-void cptoHost(Matrix & mat) const; //copy the gpmatrix to the host matrix.
+//void cpfromHost(Matrix &hostMat) const; 
+//void cptoHost(Matrix & mat) const; //copy the gpmatrix to the host matrix.
 
 // void template<class Uopertor> applyUoperator(Uoperator op, GpMatrix & a); // perform unaryoperator on the specified matrix
 // void template<class Boperator> applyBoperator(Boperator op, GpMatrix &a, GpMatrix &b); // perform binary operation on the specified matrices.
@@ -157,9 +158,9 @@ void RightMult(const GpMatrix &b, GpMatrix &tgt);
 void elemWiseMult(GpMatrix &b, GpMatrix &tgt);
 void elemWiseDivide(GpMatrix &b, GpMatrix &tgt);
 void elemWiseDivide(GpMatrix &b);
-void exp(GpMatrix &b){
-	return exp(b.getDevData());
-}
+// void exp(GpMatrix &b){
+// 	return exp(b.getDevData());
+// }
 
 };
 
