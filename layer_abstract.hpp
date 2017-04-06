@@ -19,6 +19,7 @@ All derived classes MUST override the forward and backward pass functions.
 
 
 
+
 */
 
 enum PASSTYPE{TRAIN,TEST,VAL};
@@ -36,8 +37,8 @@ protected:
 public:
 	Layer();
 	~Layer();
-	virtual void fwd_pass_cpu(Matrix &mat, PASSTYPE type);
-	virtual void fwd_pass_gpu(GpMatrix &gp_mat, PASSTYPE type);
+	virtual void fwd_pass_cpu(Matrix &mat, PASSTYPE type); // override this
+	virtual void fwd_pass_gpu(GpMatrix &gp_mat, PASSTYPE type); // and this
 	virtual void bwd_pass_cpu(Matrix &mat, PASSTYPE type);
 	virtual void bwd_pass_gpu(GpMatrix &gp_mat, PASSTYPE type);
 

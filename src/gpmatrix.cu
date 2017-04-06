@@ -4,6 +4,10 @@
 #include <gpmatrix.cuh>
 #include <cuda.h>
 #include <cublas_v2.h>
+#include "gpmatrix_kernels.h"
+
+#define BLOCK_WIDTH 16
+
 
 /* RAII baby! */
 void GpMatrix::_initGpMatrix(int numRows, int numCols, int stride, bool isTrans) {
@@ -27,13 +31,13 @@ GpMatrix::GpMatrix() {
 	_initGpMatrix(0,0,1,0);
 }
 
-GpMatrix::GpMatrix(double *devData, int numRows, int numCols, int stride, bool isTrans)
+GpMatrix::GpMatrix(double *devData, int numRows, int numCols,bool isTrans)
 				  :_deviceData(devData),
 				  _numRows(numRows),
 				  _numCols(numCols),
 				  _n_elem(numRows*numCols),
 				  _isTrans(isTrans){
-				  	stride = stride; // set stride to 1 until clear.
+				  	stride = getLeadingDim(); // set stride to leadingDim until clear.
 				  }
 
 
@@ -49,6 +53,11 @@ GpMatrix::~GpMatrix() {
    }
 }
 
+static int GpMatrix::getDeviceID() {
+	int d;
+	cudaGetDevice(&d);
+	return d;
+}
 /* copy the Gpu matrix to host 
    Note: This assumes that the Matrix type has similar API to GpMatrix.
 */
@@ -126,18 +135,95 @@ GpMatrix & GpMatrix::reshape(int numRows, int numCols)  {
 }
 
 
-GpMatrix & GpMatrix::slice(int rowStart, int colStart, int rowEnd, int colEnd) const{
+void GpMatrix::matCheckBounds(int numRows, int numCols) {
+	 assert(numRows>0);
+	 assert(numCols>0);
+	 assert(numRows==_numRows);
+	 assert(numCols==_numCols);
+}
+
+void GpMatrix::add(GpMatrix &b, float scaleB, GpMatrix &tgt) {
+	assert(a.getNumCols() == b.getNumCols() && a.getNumRows() == b.getNumRows());
+    int height = getLeadingDim();
+    int width = getFollowingDim();
+    if (this->isTrans() == b.isTrans() && tgt.isTrans() == this->isTrans())
+    {
+    	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
+    	dim3 threads(ELEM_WISE_THX,ELEM_WISE_THY);
+    	MatAdd <<< blocks, threads >>> (getDevData(), b.getDevData(),tgt.getDevData(), height,width,
+    		                            getStride(), b.getStride(), tgt.getStride());
+    }
+
+	
+			
+}
+
+void GpMatrix::add(GpMatrix &b, float scale) {
+	add(b,scale,*this);
+}
+
+
+void GpMatrix::subtract(GpMatrix &b, float scale, GpMatrix &tgt) {
+    add(b,-1,tgt);
+}
+
+
+void GpMatrix::subtract(GpMatrix &b, float scale){
+	add(b, -1);
+}
+
+
+/* perform mat mult of the form C = alpha*A*B + beta*C */
+void GpMatrix::rightMult(const GpMatrix &b, float scaleAB,GpMatrix &tgt) {
+	assert(this->checkContiguous() && b.checkContiguous() && tgt.checkContiguous());
+	assert(_numRows == b.getNumCols());
+
+	cublasStatus_t stat;
+	cublasHandle_t handle;
+	cublasCreate(&handle);
+	stat = cublasSgemm(handle,this->getTransChar(), b.getTransChar(),_numRows, b.getNumCols(),_numCols,
+					   scaleA, _deviceData, getLeadingDim(),b.getDevData(), b.getLeadingDim(),0,
+					   tgt.getDevData(), tgt.getLeadingDim());
+	if (stat != CUBLAS_STATUS_SUCCESS)
+	{
+		cuBlaserrcheck("failed to do matrix multiplication");
+	}
 
 }
 
-GpMatrix & GpMatrix::sliceRows(int rowStart, int rowEnd){
 
+
+void GpMatrix::rightMult(const GpMatrix &b, GpMatrix &tgt) {
+    rightMult(b, 1, tgt);
 }
 
-GpMatrix & GpMatrix::sliceCols(int colStart, int colEnd){
 
+void GpMatrix::rightMult(const GpMatrix &b, float scale) {
+	rightMult(b,1,*this);
 }
 
-void GpMatrix::transpose(GpMatrix &target) {
 
+/* Matrices are in column major order. */
+void GpMatrix::addProduct(const GpMatrix &a, const GpMatrix &b, float scaleAB, float scaleC){
+	assert(a.checkContiguous() && b.checkContiguous());
+	assert(a.getNumCols() == b.getNumRows()); // check if a & b can be multiplied.
+	if (scaleC == 0)
+	{
+		a.rightMult(b,scaleAB,*this);
+		return;
+	}
+    cublasHandle_t handle;
+    cuBlasStatus_t stat;
+    cublasCreate(&handle);
+    stat = cublasSgemm(handle, a.getTransChar(),b.getTransChar(),a.getNumRows(),b.getNumCols(),_numCols,
+    	               scaleAB,
+    				   a.getDevData(), a.getLeadingDim(),
+    				   b.getDevData(), b.getLeadingDim(),
+    				   scaleC,
+    				   _devData, _numCols);
+if (stat != CUBLAS_STATUS_SUCCESS)
+	{
+		cuBlaserrcheck("failed to do matrix multiplication");
+	}
+    
 }

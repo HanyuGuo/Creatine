@@ -4,6 +4,7 @@
 #include <cuda.h>
 #include <cublas_v2.h>
 #include <helper_cuda.h>
+#include <cmath>
 
 #define cudaCheckError() __cudaCheckError(__FILE__,__LINE__)
 #define cudaSafeCall(err) __cudaSafeCall(err,__FILE__,__LINE__)
@@ -51,7 +52,7 @@ class GpMatrix
   int stride; 
   void _initGpMatrix(int numRows, int numCols, int stride, bool isTrans);
   static void cuBlaserrcheck(const char *msg) {
-  	 cuBlasStatus_t stat = cublasGetError();
+  	 cublasStatus_t stat = cublasGetError();
   	 if (stat != CUBLAS_STATUS_SUCCESS)
   	 {
   	 	fprintf(stderr, msg,NULL);
@@ -60,12 +61,17 @@ class GpMatrix
 
   }
   
+  
 
 public:
    GpMatrix();
-   GpMatrix(double *dev_data, int numRows, int numCols, int stride, bool isTrans);
+   GpMatrix(double *dev_data, int numRows, int numCols,bool isTrans);
    ~GpMatrix();
    static int getDeviceID();
+
+   inline char getTransChar() {
+  	 return _isTrans ? 'n':'t';
+  }
 
    bool checkeqDims(const Matrix &mat) const {
    	return mat.getnumRows() == _numRows && mat.getNumCols() == _numCols;
@@ -106,6 +112,10 @@ public:
    int getFollowingDim(GpMatrix &gp) const {
      return _isTrans? _numCols: _numRows;   
  }
+
+ bool checkTrans() const {
+ 	return _isTrans;
+ }
   
   bool checkContiguous() const {
   	stride == getLeadingDim() || getFollowingDim() == 1; // for vectors. 
@@ -126,14 +136,31 @@ void resize(int Rows, int Cols); // resize the matrix according to the given dim
 void matCheckBounds(int numRows, int numCols) const;
 
 bool checkContiguous(const GpMatrix &mat); // check if a GpMatrix is continguous.
-GpMatrix & sliceRow(int rowStart, int rowEnd) const; 
-GpMatrix & sliceCol(int colStart, int colEnd) const;
-GpMatrix & slice(int rowStart, int colStart, int rowEnd, int colEnd) const; // matrix slice operations. Return a new GpMatrix after slice.
-GpMatrix & reshape(int Rows, int Cols); // reshape the matrix acc to the args
+// GpMatrix & sliceRow(int rowStart, int rowEnd) const; 
+// GpMatrix & sliceCol(int colStart, int colEnd) const;
+// GpMatrix & slice(int rowStart, int colStart, int rowEnd, int colEnd) const; // matrix slice operations. Return a new GpMatrix after slice.
+// GpMatrix & reshape(int Rows, int Cols); // reshape the matrix acc to the args
 
 void transposeMat(GpMatrix &tgt); // return the transpose of the matrix.
-void printShape(int numRows, int numCols); // print the shape of the Matrix.
-	
+void printShape(GpMatrix &mat); // print the shape of the Matrix.
+void addProduct(const GpMatrix &a, GpMatrix &b, float scaleThis, float scaleab); 
+void add(GpMatrix &a, float scaleA, GpMatrix &b, float scaleB, GpMatrix &tgt);
+void add(GpMatrix &b,float scale);
+void subtract(GpMatrix &b, float scaleB, GpMatrix &tgt)
+void subtract(GpMatrix &b, float scale);
+void addVector(GpMatrix &vec, float scalevec, GpMatrix &tgt);
+void addVector(GpMatrix &vec, float scale);
+void addProduct(const GpMatrix &a, const GpMatrix &b, float scaleAB, float scaleC);
+void RightMult(const GpMatrix &b, float scaleAB, GpMatrix &tgt);
+void RightMult(const GpMatrix &b,float scale);
+void RightMult(const GpMatrix &b, GpMatrix &tgt);
+void elemWiseMult(GpMatrix &b, GpMatrix &tgt);
+void elemWiseDivide(GpMatrix &b, GpMatrix &tgt);
+void elemWiseDivide(GpMatrix &b);
+void exp(GpMatrix &b){
+	return exp(b.getDevData());
+}
+
 };
 
 
