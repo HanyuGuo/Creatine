@@ -4,7 +4,7 @@
 
 #include <cuda.h>
 #include <cublas_v2.h>
-#include "../include/gpmatrix_kernels.h"
+//#include "../include/gpmatrix_kernels.cuh"
 #include "../include/gpmatrix.cuh"
 
 #define BLOCK_WIDTH 16
@@ -143,35 +143,35 @@ void GpMatrix::matCheckBounds(int numRows, int numCols) const {
 	 assert(numCols==_numCols);
 }
 
-void GpMatrix::add(GpMatrix &b, float scaleB, GpMatrix &tgt) {
-	assert(a.getnumCols() == b.getnumCols() && a.getnumRows() == b.getnumRows());
-    int height = getLeadingDim();
-    int width = getFollowingDim();
-    if (this->checkTrans() == b.checkTrans() && tgt.isTrans() == this->checkTrans())
-    {
-    	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
-    	dim3 threads(ELEM_WISE_THX,ELEM_WISE_THY);
-    	MatAdd <<< blocks, threads >>> (getDevData(), b.getDevData(),tgt.getDevData(), height,width,
-    		                            getStride(), b.getStride(), tgt.getStride());
-    }
+// void GpMatrix::add(GpMatrix &b, float scaleB, GpMatrix &tgt) {
+// 	assert(a.getnumCols() == b.getnumCols() && a.getnumRows() == b.getnumRows());
+//     int height = getLeadingDim();
+//     int width = getFollowingDim();
+//     if (this->checkTrans() == b.checkTrans() && tgt.isTrans() == this->checkTrans())
+//     {
+//     	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
+//     	dim3 threads(ELEM_WISE_THX,ELEM_WISE_THY);
+//     	MatAdd <<< blocks, threads >>> (getDevData(), b.getDevData(),tgt.getDevData(), height,width,
+//     		                            getStride(), b.getStride(), tgt.getStride());
+//     }
 
 	
 			
-}
+// }
 
-void GpMatrix::add(GpMatrix &b, float scale) {
-	add(b,scale,*this);
-}
-
-
-void GpMatrix::subtract(GpMatrix &b, float scale, GpMatrix &tgt) {
-    add(b,-1,tgt);
-}
+// void GpMatrix::add(GpMatrix &b, float scale) {
+// 	add(b,scale,*this);
+// }
 
 
-void GpMatrix::subtract(GpMatrix &b, float scale){
-	add(b, -1);
-}
+// void GpMatrix::subtract(GpMatrix &b, float scale, GpMatrix &tgt) {
+//     add(b,-1,tgt);
+// }
+
+
+// void GpMatrix::subtract(GpMatrix &b, float scale){
+// 	add(b, -1);
+// }
 
 
 /* perform mat mult of the form C = alpha*A*B + beta*C */
@@ -183,7 +183,7 @@ void GpMatrix::RightMult(const GpMatrix &b, float scaleAB,GpMatrix &tgt) {
 	cublasHandle_t handle;
 	cublasCreate(&handle);
 	stat = cublasSgemm(handle,this->getTransChar(), b.getTransChar(),_numRows, b.getnumCols(),_numCols,
-					   scaleA, _deviceData, getLeadingDim(),b.getDevData(), b.getLeadingDim(),0,
+					   scaleAB, _deviceData, getLeadingDim(),b.getDevData(), b.getLeadingDim(),0,
 					   tgt.getDevData(), tgt.getLeadingDim());
 	if (stat != CUBLAS_STATUS_SUCCESS)
 	{
@@ -195,12 +195,12 @@ void GpMatrix::RightMult(const GpMatrix &b, float scaleAB,GpMatrix &tgt) {
 
 
 void GpMatrix::RightMult(const GpMatrix &b, GpMatrix &tgt) {
-    rightMult(b, 1, tgt);
+    RightMult(b, 1, tgt);
 }
 
 
 void GpMatrix::RightMult(const GpMatrix &b, float scale) {
-	rightMult(b,1,*this);
+	RightMult(b,1,*this);
 }
 
 
@@ -210,11 +210,11 @@ void GpMatrix::addProduct(const GpMatrix &a, const GpMatrix &b, float scaleAB, f
 	assert(a.getnumCols() == b.getnumRows()); // check if a & b can be multiplied.
 	if (scaleC == 0)
 	{
-		a.rightMult(b,scaleAB,*this);
+		a.RightMult(b,scaleAB,*this);
 		return;
 	}
     cublasHandle_t handle;
-    cuBlasStatus_t stat;
+    cublasStatus_t stat;
     cublasCreate(&handle);
     stat = cublasSgemm(handle, a.getTransChar(),b.getTransChar(),a.getnumRows(),b.getnumCols(),_numCols,
     	               scaleAB,
