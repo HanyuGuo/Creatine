@@ -53,12 +53,8 @@ class GpMatrix
   int stride; 
   void _initGpMatrix(int numRows, int numCols, int stride, bool isTrans);
   static void cuBlaserrcheck(const char *msg) {
-  	 cublasStatus_t stat = cublasGetError();
-  	 if (stat != CUBLAS_STATUS_SUCCESS)
-  	 {
-  	 	fprintf(stderr, msg,NULL);
+  	 	fprintf(stderr, msg);
   	 	exit(1);
-  	 }
 
   }
   
@@ -75,7 +71,7 @@ public:
   }
 
    bool checkeqDims(const GpMatrix &mat) const {
-   	return mat.getnumRows() == _numRows && mat.getNumCols() == _numCols;
+   	return mat.getnumRows() == _numRows && mat.getnumCols() == _numCols;
    }
   
    int getnumRows() const {
@@ -147,7 +143,7 @@ void printShape(GpMatrix &mat); // print the shape of the Matrix.
 void addProduct(const GpMatrix &a, GpMatrix &b, float scaleThis, float scaleab); 
 void add(GpMatrix &a, float scaleA, GpMatrix &b, float scaleB, GpMatrix &tgt);
 void add(GpMatrix &b,float scale);
-void subtract(GpMatrix &b, float scaleB, GpMatrix &tgt)
+void subtract(GpMatrix &b, float scaleB, GpMatrix &tgt);
 void subtract(GpMatrix &b, float scale);
 void addVector(GpMatrix &vec, float scalevec, GpMatrix &tgt);
 void addVector(GpMatrix &vec, float scale);
