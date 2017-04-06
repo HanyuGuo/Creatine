@@ -3,7 +3,7 @@
 
 #include <cuda.h>
 #include <cublas_v2.h>
-#include <helper_cuda.h>
+//#include <helper_cuda.h>
 #include <cmath>
 #include <iostream>
 
@@ -99,7 +99,7 @@ public:
        if(_isTrans)
        	return &_deviceData[j*_numRows+i];
        else
-       	retun &_deviceData[i*_numRows+j];
+       	return &_deviceData[i*_numRows+j];
    }
 
    int getStride() const {
