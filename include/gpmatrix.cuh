@@ -150,6 +150,8 @@ void RightMult(const GpMatrix &b, GpMatrix &tgt);
 void elemWiseMult(GpMatrix &b, GpMatrix &tgt);
 void elemWiseDivide(GpMatrix &b, GpMatrix &tgt);
 void elemWiseDivide(GpMatrix &b);
+
+void printMat(int numRows, int numCols);
 // void exp(GpMatrix &b){
 // 	return exp(b.getDevData());
 // }

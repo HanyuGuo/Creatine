@@ -21,10 +21,14 @@ int main(int argc, char  *argv[])
      GpMatrix gp1(data1, 3,3,true);
      GpMatrix gp2(data2, 3,3,true);
 
-     std::cout << "gp1 rows: "<<gp1.getnumRows() << "gp2 rows: "<<gp2.getnumRows()<<"\n";
-     std::cout << "gp1 cols: "<<gp2.getnumCols() << "gp2 cols: "<<gp2.getnumCols()<<"\n";
-     std::cout<<"gp1 leadingDim: "<<gp1.getLeadingDim()<<"\n";
-     std::cout<<"gp2 leadingDim:"<<gp2.getLeadingDim()<<"\n";
+     gp1.printMat(3,3);
+     
+     //gp1.RightMult(&gp2, 1);
+
+     // std::cout << "gp1 rows: "<<gp1.getnumRows() << "gp2 rows: "<<gp2.getnumRows()<<"\n";
+     // std::cout << "gp1 cols: "<<gp2.getnumCols() << "gp2 cols: "<<gp2.getnumCols()<<"\n";
+     // std::cout<<"gp1 leadingDim: "<<gp1.getLeadingDim()<<"\n";
+     // std::cout<<"gp2 leadingDim:"<<gp2.getLeadingDim()<<"\n";
 
     // gp1.add(gp2,1); // simple matrix addition.
 	return 0;

@@ -228,3 +228,14 @@ if (stat != CUBLAS_STATUS_SUCCESS)
 	}
 
 }
+
+
+void GpMatrix::printMat(int numRows, int numCols){
+	for (int i = 0; i < numCols; ++i)
+	{
+		for (int j = 0; j < numRows; ++j)
+		{
+			std::cout<<"i: "<<i << " j: "<< " Mat[i][j]: " << _deviceData[j*numCols+numRows];
+		}
+	}
+}
