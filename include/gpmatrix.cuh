@@ -137,8 +137,9 @@ bool checkContiguous(const GpMatrix &mat); // check if a GpMatrix is continguous
 void transposeMat(GpMatrix &tgt); // return the transpose of the matrix.
 void printShape(GpMatrix &mat); // print the shape of the Matrix.
 void addProduct(const GpMatrix &a, GpMatrix &b, float scaleThis, float scaleab); 
-void add(GpMatrix &a, float scaleA, GpMatrix &b, float scaleB, GpMatrix &tgt);
-void add(GpMatrix &b,float scale);
+void add(const GpMatrix &b, float scaleB, GpMatrix &tgt);
+void add(const GpMatrix &b,float scale);
+void add(const GpMatrix &b);
 void subtract(GpMatrix &b, float scaleB, GpMatrix &tgt);
 void subtract(GpMatrix &b, float scale);
 void addVector(GpMatrix &vec, float scalevec, GpMatrix &tgt);
