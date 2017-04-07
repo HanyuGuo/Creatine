@@ -183,7 +183,7 @@ void GpMatrix::RightMult(const GpMatrix &b,float scaleAB, GpMatrix &tgt) {
 	cublasHandle_t handle;
 	cublasCreate(&handle);
 	stat = cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,_numRows, b.getnumCols(),_numCols,
-					   scaleAB, _deviceData, getLeadingDim(),b.getDevData(), b.getLeadingDim(),0,
+					   &scaleAB, _deviceData, getLeadingDim(),b.getDevData(), b.getLeadingDim(),0,
 					   tgt.getDevData(), tgt.getLeadingDim());
 	if (stat != CUBLAS_STATUS_SUCCESS)
 	{
@@ -217,10 +217,10 @@ void GpMatrix::addProduct(const GpMatrix &a, const GpMatrix &b, float scaleAB, f
     cublasStatus_t stat;
     cublasCreate(&handle);
     stat = cublasSgemm(handle, CUBLAS_OP_N,CUBLAS_OP_N,a.getnumRows(),b.getnumCols(),_numCols,
-    	               scaleAB,
+    	               &scaleAB,
     				   a.getDevData(), a.getLeadingDim(),
     				   b.getDevData(), b.getLeadingDim(),
-    				   scaleC,
+    				   &scaleC,
     				   _deviceData, _numCols);
 if (stat != CUBLAS_STATUS_SUCCESS)
 	{
