@@ -32,14 +32,14 @@ GpMatrix::GpMatrix() {
 	_initGpMatrix(0,0,1,0);
 }
 
-GpMatrix::GpMatrix(double *devData, int numRows, int numCols,bool isTrans)
-				  :_deviceData(devData),
+GpMatrix::GpMatrix(float *devData, int numRows, int numCols,bool isTrans):
+                  _deviceData(devData),
 				  _numRows(numRows),
 				  _numCols(numCols),
 				  _n_elem(numRows*numCols),
 				  _isTrans(isTrans){
 				  	stride = getLeadingDim(); // set stride to leadingDim until clear.
-				  }
+	               }
 
 
 
@@ -107,8 +107,8 @@ void GpMatrix::resize(int numRows,int numCols) {
     		}
     	} 
         if(numRows*numCols > 0) {
-			cublasStatus_t status = cudaMalloc((void**) _deviceData, numRows*numCols*sizeof(double));
-    		if (status != CUBLAS_STATUS_SUCCESS)
+			cudaError_t status = cudaMalloc((void**) _deviceData, numRows*numCols*sizeof(double));
+    		if (status != cudaSuccess)
     		{
     		   cuBlaserrcheck("Failed to create new resized array \n");
     		}
@@ -208,15 +208,15 @@ void GpMatrix::RightMult(const GpMatrix &b, float scale) {
 void GpMatrix::addProduct(const GpMatrix &a, const GpMatrix &b, float scaleAB, float scaleC){
 	assert(a.checkContiguous() && b.checkContiguous());
 	assert(a.getnumCols() == b.getnumRows()); // check if a & b can be multiplied.
-	if (scaleC == 0)
-	{
-		a.RightMult(b,*this);
-		return;
-	}
+	// if (scaleC == 0)
+	// {
+	// 	a.RightMult(b,scaleAB,*this);
+	// 	return;
+	// }
     cublasHandle_t handle;
-    cubÏlasStatus_t stat;
+    cublasStatus_t stat;
     cublasCreate(&handle);
-    stat = cublasSgemm(handle, CUBLAS_OP_N,b.getTransChar(),a.getnumRows(),b.getnumCols(),_numCols,
+    stat = cublasSgemm(handle, CUBLAS_OP_N,CUBLAS_OP_N,a.getnumRows(),b.getnumCols(),_numCols,
     	               scaleAB,
     				   a.getDevData(), a.getLeadingDim(),
     				   b.getDevData(), b.getLeadingDim(),
