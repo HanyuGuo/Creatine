@@ -4,7 +4,7 @@
 
 #include <cuda.h>
 #include <cublas_v2.h>
-//#include "../include/gpmatrix_kernels.cuh"
+#include "../include/gpmatrix_kernels.cuh"
 #include "../include/gpmatrix.cuh"
 
 #define BLOCK_WIDTH 16
@@ -143,25 +143,25 @@ void GpMatrix::matCheckBounds(int numRows, int numCols) const {
 	 assert(numCols==_numCols);
 }
 
-// void GpMatrix::add(GpMatrix &b, float scaleB, GpMatrix &tgt) {
-// 	assert(a.getnumCols() == b.getnumCols() && a.getnumRows() == b.getnumRows());
-//     int height = getLeadingDim();
-//     int width = getFollowingDim();
-//     if (this->checkTrans() == b.checkTrans() && tgt.isTrans() == this->checkTrans())
-//     {
-//     	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
-//     	dim3 threads(ELEM_WISE_THX,ELEM_WISE_THY);
-//     	MatAdd <<< blocks, threads >>> (getDevData(), b.getDevData(),tgt.getDevData(), height,width,
-//     		                            getStride(), b.getStride(), tgt.getStride());
-//     }
+void GpMatrix::add(GpMatrix &b, float scaleB, GpMatrix &tgt) {
+	assert(a.getnumCols() == b.getnumCols() && a.getnumRows() == b.getnumRows());
+    int height = getLeadingDim();
+    int width = getFollowingDim();
+    if (checkTrans() == b.checkTrans() && tgt.isTrans() == checkTrans())
+    {
+    	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
+    	dim3 threads(ELEM_WISE_THX,ELEM_WISE_THY);
+    	MatAdd <<< blocks, threads >>> (getDevData(), b.getDevData(),tgt.getDevData(), height,width,
+    		                            getStride(), b.getStride(), tgt.getStride());
+    }
 
 	
 			
-// }
+}
 
-// void GpMatrix::add(GpMatrix &b, float scale) {
-// 	add(b,scale,*this);
-// }
+void GpMatrix::add(GpMatrix &b, float scale) {
+	add(b,scale,*this);
+}
 
 
 // void GpMatrix::subtract(GpMatrix &b, float scale, GpMatrix &tgt) {
@@ -176,7 +176,7 @@ void GpMatrix::matCheckBounds(int numRows, int numCols) const {
 
 /* perform mat mult of the form C = alpha*A*B + beta*C */
 void GpMatrix::RightMult(const GpMatrix &b,float scaleAB, GpMatrix &tgt) {
-	assert(this->checkContiguous() && b.checkContiguous() && tgt.checkContiguous());
+	assert(checkContiguous() && b.checkContiguous() && tgt.checkContiguous());
 	assert(_numRows == b.getnumCols());
 
 	cublasStatus_t stat;
@@ -226,7 +226,7 @@ if (stat != CUBLAS_STATUS_SUCCESS)
 	{
 		cuBlaserrcheck("failed to do matrix multiplication");
 	}
-
+    cublasDestroy(&handle);
 }
 
 

@@ -7,31 +7,36 @@
 
 
 
-__global__ void MatAdd(double *a, double *b, double *c,
-					   int strideA, int strideB, int stridetgt) {
+__global__ void MatAdd(double *a, double *b, double *c,int height,
+	                   int width,
+					   int strideA, int strideB, 
+					   int stridetgt) {
 	int idx = blockIdx.x*ELEM_WISE_THX + threadIdx.x;
 	int idy = blockIdx.y*ELEM_WISE_THY + threadIdx.y;
-    
-    if (idx < width && idy < height)
+    for (idy = 0; idy < height; idy+=gridDim.y*ELEM_WISE_THY)
     {
-    	c[idy*stridetgt+idx] = a[idy*strideA+idx]+b[idy*strideB+idx];
+      for (idx = 0; i < width; idx+=gridDim.x*ELEM_WISE_THX)
+      {
+      	c[idy*stridetgt+idx] = a[idy*strideA+idx]+b[idy*strideB+idx];
+      }
     }
+    
 
 }
 
 
-__global__ void MatMul(double *a, double *b, double *c){
-	int idx = blockIdx.x*ELEM_WISE_THX + threadIdx.x;
-	int idy = blockIdx.y*ELEM_WISE_THY + threadIdx.y;
+// __global__ void MatMul(double *a, double *b, double *c){
+// 	int idx = blockIdx.x*ELEM_WISE_THX + threadIdx.x;
+// 	int idy = blockIdx.y*ELEM_WISE_THY + threadIdx.y;
     
-    if (idx < width && idy < height)
-    {
-    	c[idy*stridetgt+idx] = a[idy*strideA+idx]*b[idy*strideB+idx];
-    }
+//     if (idx < width && idy < height)
+//     {
+//     	c[idy*stridetgt+idx] = a[idy*strideA+idx]*b[idy*strideB+idx];
+//     }
 
-}
+// }
 
-__global__ void MatDivide(double *a, double *b, )
+// __global__ void MatDivide(double *a, double *b, )
 
 
 
