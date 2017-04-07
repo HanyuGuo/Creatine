@@ -19,8 +19,8 @@ void GpMatrix::_initGpMatrix(int numRows, int numCols, int stride, bool isTrans)
     stride = stride;
     if (_n_elem > 0)
      {
-       cublasStatus_t stat = cudaMalloc((void**)&_deviceData,_n_elem*sizeof(double));
-       if (stat != CUBLAS_STATUS_SUCCESS)
+       cudaError_t stat = cudaMalloc((void**)&_deviceData,_n_elem*sizeof(double));
+       if (stat != cudaSuccess)
        {
        	 cuBlaserrcheck("Can't allocate memory on GPU\n");
        }
@@ -46,19 +46,19 @@ GpMatrix::GpMatrix(double *devData, int numRows, int numCols,bool isTrans)
 GpMatrix::~GpMatrix() {
    if (_n_elem > 0)
    {
-   	 cublasStatus_t stat = cudaFree((void*)_deviceData);
-   	 if (stat != CUBLAS_STATUS_SUCCESS)
+   	 cudaError_t stat = cudaFree((void*)_deviceData);
+   	 if (stat != cudaSuccess)
    	 {
    	 	cuBlaserrcheck("Can't free memory on GPU. Did you allocate it? \n");
    	 }
    }
 }
 
-static int GpMatrix::getDeviceID() {
-	int d;
-	cudaGetDevice(&d);
-	return d;
-}
+// static int GpMatrix::getDeviceID() {
+// 	int d;
+// 	cudaGetDevice(&d);
+// 	return d;
+// }
 /* copy the Gpu matrix to host 
    Note: This assumes that the Matrix type has similar API to GpMatrix.
 */
@@ -66,7 +66,7 @@ static int GpMatrix::getDeviceID() {
 //     assert(checkeqDims(mat));
 //     if (getNumElements() > 0)
 //     {
-//     	 cuBlasStatus_t stat = cublasGetMatrix(getnumRows(),getnumCols(), getnumElements(),
+//     	 cublasStatus_t stat = cublasGetMatrix(getnumRows(),getnumCols(), getnumElements(),
 //     									  _deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
 //     if (stat != CUBLAS_STATUS_SUCCESS)
 //     {
@@ -80,7 +80,7 @@ static int GpMatrix::getDeviceID() {
 //   assert(checkeqDims(mat));
 //     if (getNumElements() > 0)
 //     {
-//     	 cuBlasStatus_t stat = cublasSetMatrix(getnumRows(),getnumCols(), getnumElements(),
+//     	 cublasStatus_t stat = cublasSetMatrix(getnumRows(),getnumCols(), getnumElements(),
 //     									  _deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
 //     if (stat != CUBLAS_STATUS_SUCCESS)
 //     {
@@ -100,14 +100,14 @@ void GpMatrix::resize(int numRows,int numCols) {
     {
     	if (_n_elem > 0)
     	{
-    		cuBlasStatus_t stat = cudaFree(_deviceData);
-    		if (stat != CUBLAS_STATUS_SUCCESS)
+    		cudaError_t stat = cudaFree(_deviceData);
+    		if (stat != cudaSuccess)
     		{
     		   cuBlaserrcheck("Cannot free the memory..\n");
     		}
     	} 
         if(numRows*numCols > 0) {
-			cuBlasStatus_t status = cudaMalloc((void**) _deviceData, numRows*numCols*sizeof(double));
+			cublasStatus_t status = cudaMalloc((void**) _deviceData, numRows*numCols*sizeof(double));
     		if (status != CUBLAS_STATUS_SUCCESS)
     		{
     		   cuBlaserrcheck("Failed to create new resized array \n");
@@ -175,14 +175,14 @@ void GpMatrix::matCheckBounds(int numRows, int numCols) const {
 
 
 /* perform mat mult of the form C = alpha*A*B + beta*C */
-void GpMatrix::RightMult(const GpMatrix &b, float scaleAB,GpMatrix &tgt) {
+void GpMatrix::RightMult(const GpMatrix &b,float scaleAB, GpMatrix &tgt) {
 	assert(this->checkContiguous() && b.checkContiguous() && tgt.checkContiguous());
 	assert(_numRows == b.getnumCols());
 
 	cublasStatus_t stat;
 	cublasHandle_t handle;
 	cublasCreate(&handle);
-	stat = cublasSgemm(handle,this->getTransChar(), b.getTransChar(),_numRows, b.getnumCols(),_numCols,
+	stat = cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,_numRows, b.getnumCols(),_numCols,
 					   scaleAB, _deviceData, getLeadingDim(),b.getDevData(), b.getLeadingDim(),0,
 					   tgt.getDevData(), tgt.getLeadingDim());
 	if (stat != CUBLAS_STATUS_SUCCESS)
@@ -210,18 +210,18 @@ void GpMatrix::addProduct(const GpMatrix &a, const GpMatrix &b, float scaleAB, f
 	assert(a.getnumCols() == b.getnumRows()); // check if a & b can be multiplied.
 	if (scaleC == 0)
 	{
-		a.RightMult(b,scaleAB,*this);
+		a.RightMult(b,*this);
 		return;
 	}
     cublasHandle_t handle;
-    cublasStatus_t stat;
+    cubÏlasStatus_t stat;
     cublasCreate(&handle);
-    stat = cublasSgemm(handle, a.getTransChar(),b.getTransChar(),a.getnumRows(),b.getnumCols(),_numCols,
+    stat = cublasSgemm(handle, CUBLAS_OP_N,b.getTransChar(),a.getnumRows(),b.getnumCols(),_numCols,
     	               scaleAB,
     				   a.getDevData(), a.getLeadingDim(),
     				   b.getDevData(), b.getLeadingDim(),
     				   scaleC,
-    				   _devData, _numCols);
+    				   _deviceData, _numCols);
 if (stat != CUBLAS_STATUS_SUCCESS)
 	{
 		cuBlaserrcheck("failed to do matrix multiplication");

@@ -47,7 +47,7 @@
 class GpMatrix
 { 
  private:
-  double *_deviceData; // device data
+  float *_deviceData; // device data
   int _numRows, _numCols;
   int _n_elem;
   bool _isTrans;
@@ -63,7 +63,7 @@ class GpMatrix
 
 public:
    GpMatrix();
-   GpMatrix(double *dev_data, int numRows, int numCols,bool isTrans);
+   GpMatrix(float *dev_data, int numRows, int numCols,bool isTrans);
    ~GpMatrix();
    static int getDeviceID();
 
@@ -88,11 +88,11 @@ public:
    	 return _n_elem;
    }
 
-   double *getDevData() const {
+   float *getDevData() const {
    	return _deviceData;
    }
 
-   double* getoneCell(int i, int j) const{
+   float* getoneCell(int i, int j) const{
        if(_isTrans)
        	return &_deviceData[j*_numRows+i];
        else
