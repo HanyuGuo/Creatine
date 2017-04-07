@@ -6,8 +6,8 @@
 int main(int argc, char  *argv[])
 {  
 
-	 float *data1 = new double[9];
-	 float *data2 = new double[9];
+	 float *data1 = new float[9];
+	 float *data2 = new float[9];
      //double *dev_data1, *dev_data2;
      int num_cols = 3;
      int num_rows = 3;
