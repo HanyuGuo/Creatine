@@ -231,11 +231,11 @@ if (stat != CUBLAS_STATUS_SUCCESS)
 
 
 void GpMatrix::printMat(int numRows, int numCols){
-	for (int i = 0; i < numCols; ++i)
+	for (int i = 0; i < numRows; ++i)
 	{
-		for (int j = 0; j < numRows; ++j)
+		for (int j = 0; j < numCols; ++j)
 		{
-			std::cout<<"i: "<<i << " j: "<< j<< " Mat: " << _deviceData[j*numCols+numRows];
+			std::cout<<"i: "<<i << " j: "<< j<< " Mat: " << _deviceData[j*numRows+i] <<"\n";
 		}
 	}
 }
