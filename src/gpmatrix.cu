@@ -235,7 +235,7 @@ void GpMatrix::printMat(int numRows, int numCols){
 	{
 		for (int j = 0; j < numRows; ++j)
 		{
-			std::cout<<"i: "<<i << " j: "<< " Mat[i][j]: " << _deviceData[j*numCols+numRows];
+			std::cout<<"i: "<<i << " j: "<< j<< " Mat: " << _deviceData[j*numCols+numRows];
 		}
 	}
 }
