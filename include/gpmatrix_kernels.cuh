@@ -7,7 +7,7 @@
 
 
 
-__global__ void MatAdd(double *a, double *b, double *c,int height,
+__global__ void MatAdd(float *a, float *b, float *c,int height,
 	                   int width,
 					   int strideA, int strideB, 
 					   int stridetgt) {

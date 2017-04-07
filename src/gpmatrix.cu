@@ -144,10 +144,10 @@ void GpMatrix::matCheckBounds(int numRows, int numCols) const {
 }
 
 void GpMatrix::add(GpMatrix &b, float scaleB, GpMatrix &tgt) {
-	assert(a.getnumCols() == b.getnumCols() && a.getnumRows() == b.getnumRows());
+	assert(getnumCols() == b.getnumCols() && getnumRows() == b.getnumRows());
     int height = getLeadingDim();
     int width = getFollowingDim();
-    if (checkTrans() == b.checkTrans() && tgt.isTrans() == checkTrans())
+    if (checkTrans() == b.checkTrans() && tgt.checkTrans() == checkTrans())
     {
     	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
     	dim3 threads(ELEM_WISE_THX,ELEM_WISE_THY);
@@ -226,7 +226,7 @@ if (stat != CUBLAS_STATUS_SUCCESS)
 	{
 		cuBlaserrcheck("failed to do matrix multiplication");
 	}
-    cublasDestroy(&handle);
+    cublasDestroy(handle);
 }
 
 
