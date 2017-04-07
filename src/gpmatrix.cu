@@ -159,10 +159,13 @@ void GpMatrix::add(GpMatrix &b, float scaleB, GpMatrix &tgt) {
 			
 }
 
-void GpMatrix::add(GpMatrix &b, float scale) {
-	add(b,scale,*this);
+void GpMatrix::add(const GpMatrix &b, float scale) {
+	add(b, scale, *this);
 }
 
+void GpMatrix::add(const GpMatrix &b){
+	add(b,1,*this);
+}
 
 // void GpMatrix::subtract(GpMatrix &b, float scale, GpMatrix &tgt) {
 //     add(b,-1,tgt);
