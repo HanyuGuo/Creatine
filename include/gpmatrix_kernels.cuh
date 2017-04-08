@@ -7,19 +7,14 @@
 
 
 
-__global__ void MatAdd(float *a, float *b, float *c,int height,
-	                   int width,
-					   int strideA, int strideB, 
-					   int stridetgt) {
+__global__ void MatAdd(float *a, float *b, float *c,int cols,
+	                   int rows) {
 	int idx = blockIdx.x*ELEM_WISE_THX + threadIdx.x;
 	int idy = blockIdx.y*ELEM_WISE_THY + threadIdx.y;
-    for (idy = 0; idy < height; idy+=gridDim.y*ELEM_WISE_THY)
-    {
-      for (idx = 0; i < width; idx+=gridDim.x*ELEM_WISE_THX)
-      {
-      	c[idy*stridetgt+idx] = a[idy*strideA+idx]+b[idy*strideB+idx];
-      }
+    if (idy < height && idx < width) {
+      c[idy*cols+idx] = a[idy*cols+idx]+b[idy*cols+idx];
     }
+    
     
 
 }
