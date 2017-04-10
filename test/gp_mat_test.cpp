@@ -21,7 +21,7 @@ int main(int argc, char  *argv[])
      GpMatrix gp1(data1, 3,3,true);
      GpMatrix gp2(data2, 3,3,true);
      gp1.add(gp2);
-     //gp1.printMat(3,3);
+     gp1.printMat(3,3);
     // gp1.RightMult(gp2, 1);
 
      // std::cout << "gp1 rows: "<<gp1.getnumRows() << "gp2 rows: "<<gp2.getnumRows()<<"\n";
