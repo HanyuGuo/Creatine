@@ -10,39 +10,36 @@
 #define BLOCK_WIDTH 16
 
 
-void GpMatrix::_initGpMatrix(int numRows, int numCols, int stride, bool isTrans) {
+void GpMatrix::_initGpMatrix(float *devData, int numRows, int numCols, bool isTrans) {
+	_deviceData = devData;
     _numRows = numRows;
     _numCols = numCols;
     _n_elem= _numRows*_numCols;
     _isTrans = isTrans;
-    stride = stride;
-    if (_n_elem > 0)
-     {
-       cudaError_t stat = cudaMalloc((void**)&_deviceData,_n_elem*sizeof(double));
-       if (stat != cudaSuccess)
-       {
-       	 cuBlaserrcheck("Can't allocate memory on GPU\n");
-       }
-     } 
+   
+    
 
 }
 
 GpMatrix::GpMatrix() {
-	_initGpMatrix(0,0,1,0);
+	_initGpMatrix(NULL,0,0,1,0);
 }
 
 /* 
 Init the matrix and set the parameters. 
  */
-GpMatrix::GpMatrix(float *devData, int numRows, int numCols,bool isTrans):
-                  _deviceData(devData),
-				  _numRows(numRows),
-				  _numCols(numCols),
-				  _n_elem(numRows*numCols),
-				  _isTrans(isTrans){
-				  stride = getLeadingDim(); // set stride to leadingDim until clear.
-				  _initGpMatrix(numRows,numCols,stride, isTrans);
-	               }
+GpMatrix::GpMatrix(float *devData, int numRows, int numCols,bool isTrans){
+           _initGpMatrix(devData,numRows,numCols,true);
+           if (numRows * numCols > 0)
+           {
+           	  cudaError_t stat = cudaMalloc((void**)&_deviceData, numRows*numCols*sizeof(double));
+           	  if (stat != cudaSuccess)
+           	  {
+           	  	 std::cout<<"Can't allocate matrix!\n";
+           	  }
+           }
+
+}
 
 
 
