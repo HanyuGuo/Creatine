@@ -147,7 +147,7 @@ void GpMatrix::matCheckBounds(int numRows, int numCols) const {
 }
 
 void GpMatrix::add(const GpMatrix &b, float scaleB, GpMatrix &tgt) {
-
+    cudaError err;
 	assert(getnumCols() == b.getnumCols() && getnumRows() == b.getnumRows());
     int height = getLeadingDim();
     int width = getFollowingDim();
@@ -156,7 +156,10 @@ void GpMatrix::add(const GpMatrix &b, float scaleB, GpMatrix &tgt) {
     	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
     	dim3 threads(ELEM_WISE_THX,ELEM_WISE_THY);
     	MatAdd <<< blocks, threads >>> (getDevData(), b.getDevData(),tgt.getDevData(), height,width);
-    	cudaCheckError();
+    	if (err != cudaSuccess)
+    	{
+    	   std::cout<<"Error launching kernel...\n";
+    	}
     }
 
 	
