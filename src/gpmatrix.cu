@@ -32,13 +32,17 @@ GpMatrix::GpMatrix() {
 	_initGpMatrix(0,0,1,0);
 }
 
+/* 
+Init the matrix and set the parameters. 
+ */
 GpMatrix::GpMatrix(float *devData, int numRows, int numCols,bool isTrans):
                   _deviceData(devData),
 				  _numRows(numRows),
 				  _numCols(numCols),
 				  _n_elem(numRows*numCols),
 				  _isTrans(isTrans){
-				  	stride = getLeadingDim(); // set stride to leadingDim until clear.
+				  stride = getLeadingDim(); // set stride to leadingDim until clear.
+				  _initGpMatrix(numRows,numCols,stride, isTrans);
 	               }
 
 
