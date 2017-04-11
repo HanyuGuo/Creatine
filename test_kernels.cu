@@ -25,20 +25,20 @@ int main(int argc, char **argv) {
   cudaMemcpy(ddata2,hdata2, numRows*numCols*sizeof(float),cudaMemcpyHostToDevice);
   int block_dim_x = 32;
   int block_dim_y = 32;
-  int grid_dim_x = (this->numElems)/block_dim_x;
-  int grid_dim_y = (this->numElems)/block_dim_y;
+  int grid_dim_x = (numRows*numCols)/block_dim_x;
+  int grid_dim_y = (numRows*numCols)/block_dim_y;
   dim3 grid(grid_dim_x,grid_dim_y, 1);
   dim3 block(block_dim_x, block_dim_y);
-  std::cout << "Launching kernel now..." << '\n';
+  printf("Launching kernel now...\n");
   MatAddKernel<<< grid, block >>>(ddata1,ddata2,resddata, numRows, numCols);
   err = cudaGetLastError();
   if (err != cudaSuccess) {
-    std::cout << "Can't write to device data." << '\n';
+    printf("error launching kernel\n");
   }
   cudaMemcpy(reshdata,resddata,numRows*numCols*sizeof(float),cudaMemcpyDeviceToHost);
   err = cudaGetLastError();
   if (err != cudaSuccess) {
-    std::cout << "Can't write to device data." << '\n';
+    printf("Can't read from device data \n");
   }
 
   return 0;
