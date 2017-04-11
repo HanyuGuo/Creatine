@@ -78,7 +78,7 @@ GpMatrix::~GpMatrix() {
 //     if (getNumElements() > 0)
 //     {
 //     	 cublasStatus_t stat = cublasGetMatrix(getnumRows(),getnumCols(), getnumElements(),
-//     									  _deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
+//     									  deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
 //     if (stat != CUBLAS_STATUS_SUCCESS)
 //     {
 //     	cuBlaserrcheck("Couldn't write to host memory, read failure \n");
@@ -92,7 +92,7 @@ GpMatrix::~GpMatrix() {
 //     if (getNumElements() > 0)
 //     {
 //     	 cublasStatus_t stat = cublasSetMatrix(getnumRows(),getnumCols(), getnumElements(),
-//     									  _deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
+//     									  deviceData, getLeadingDim(),mat.getData(), mat.getLeadingDim());
 //     if (stat != CUBLAS_STATUS_SUCCESS)
 //     {
 //     	cuBlaserrcheck("Couldn't read from host memory, write failure \n");
@@ -111,20 +111,20 @@ void GpMatrix::resize(int numRows,int numCols) {
     {
     	if (_n_elem > 0)
     	{
-    		cudaError_t stat = cudaFree(_deviceData);
+    		cudaError_t stat = cudaFree(deviceData);
     		if (stat != cudaSuccess)
     		{
     		   cuBlaserrcheck("Cannot free the memory..\n");
     		}
     	} 
         if(numRows*numCols > 0) {
-			cudaError_t status = cudaMalloc((void**) _deviceData, numRows*numCols*sizeof(double));
+			cudaError_t status = cudaMalloc((void**) deviceData, numRows*numCols*sizeof(double));
     		if (status != cudaSuccess)
     		{
     		   cuBlaserrcheck("Failed to create new resized array \n");
     		}
     	    } else {
-    		_deviceData = NULL;
+    		deviceData = NULL;
     	}
     	
     _numRows = numRows;
@@ -142,7 +142,7 @@ void GpMatrix::resize(int numRows,int numCols) {
 //    _numRows = numRows;
 //    _numCols = numCols;
 //    stride = getLeadingDim();
-//    return new *GpMatrix(_deviceData,numRows,numCols,stride, isTrans);
+//    return new *GpMatrix(deviceData,numRows,numCols,stride, isTrans);
 
 // }
 
@@ -201,7 +201,7 @@ void GpMatrix::RightMult(const GpMatrix &b,float scaleAB, GpMatrix &tgt) {
 	cublasHandle_t handle;
 	cublasCreate(&handle);
 	stat = cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,_numRows, b.getnumCols(),_numCols,
-					   &scaleAB, _deviceData, getLeadingDim(),b.getDevData(), b.getLeadingDim(),0,
+					   &scaleAB, deviceData, getLeadingDim(),b.getDevData(), b.getLeadingDim(),0,
 					   tgt.getDevData(), tgt.getLeadingDim());
 	if (stat != CUBLAS_STATUS_SUCCESS)
 	{
@@ -239,7 +239,7 @@ void GpMatrix::addProduct(const GpMatrix &a, const GpMatrix &b, float scaleAB, f
     				   a.getDevData(), a.getLeadingDim(),
     				   b.getDevData(), b.getLeadingDim(),
     				   &scaleC,
-    				   _deviceData, _numCols);
+    				   deviceData, _numCols);
 if (stat != CUBLAS_STATUS_SUCCESS)
 	{
 		cuBlaserrcheck("failed to do matrix multiplication");
@@ -253,7 +253,7 @@ void GpMatrix::printMat(int numRows, int numCols){
 	{
 		for (int j = 0; j < numCols; ++j)
 		{
-			std::cout<<"i: "<<i << " j: "<< j<< " Mat: " << _deviceData[j*numRows+i] <<"\n";
+			std::cout<<"i: "<<i << " j: "<< j<< " Mat: " << deviceData[j*numRows+i] <<"\n";
 		}
 	}
 }
