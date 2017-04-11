@@ -47,12 +47,12 @@
 class GpMatrix
 { 
  private:
-  float *_deviceData; // device data
+  float *deviceData; // device data
   int _numRows, _numCols;
   int _n_elem;
   bool _isTrans;
   int stride; 
-  void _initGpMatrix(int numRows, int numCols, int stride, bool isTrans);
+  void _initGpMatrix(float *devData, int numRows, int numCols, bool isTrans);
   static void cuBlaserrcheck(const char *msg) {
   	 	fprintf(stderr, msg);
   	 	exit(1);
@@ -64,6 +64,7 @@ class GpMatrix
 public:
    GpMatrix();
    GpMatrix(float *dev_data, int numRows, int numCols,bool isTrans);
+   GpMatrix(int numRows, int numCols, bool isTrans=false);
    ~GpMatrix();
    static int getDeviceID();
 
@@ -89,7 +90,7 @@ public:
    }
 
    float *getDevData() const {
-   	return _deviceData;
+   		return _deviceData;
    }
 
    float* getoneCell(int i, int j) const{
