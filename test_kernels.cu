@@ -40,6 +40,10 @@ int main(int argc, char **argv) {
   if (err != cudaSuccess) {
     printf("Can't read from device data \n");
   }
-
+  for(i=0; i<numRows; ++i) {
+    for(j=0; j<numCols; ++j) {
+      printf("result[%d][%d]: %.2f", i,j,reshdata[i*numRows+j]);
+    }
+  }
   return 0;
 }

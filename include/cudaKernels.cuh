@@ -3,7 +3,6 @@
 #include<stdio.h>
 #include<cuda_runtime.h>
 
-
 __global__ void MatAddKernel(float *a, float *b, float *c, int numRows,int numCols);
 
 
