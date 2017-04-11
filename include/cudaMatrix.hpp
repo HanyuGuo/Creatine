@@ -28,7 +28,7 @@ public:
      }
 
   }
-  void cudaAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix addition kernel.
+  __device__ void cudaAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix addition kernel.
   //void cudaAdd(const cudaMatrix &b);
 };
 

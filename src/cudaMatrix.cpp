@@ -1,6 +1,7 @@
 #include <iostream>
 #include <assert.h>
 #include <cuda.h>
+#include<cuda_helper.h>
 #include "../include/cudaMatrix.hpp"
 
 
@@ -23,6 +24,7 @@ void cudaMatrix::_init(float *data, int numRows, int numCols){
 }
 
 cudaMatrix::cudaMatrix(int numRows, int numCols){
+  cudaError_t err;
   _init(NULL,numRows,numCols);
   if (numRows*numCols > 0) {
     cudaMalloc((void**)&devData, numElems*sizeof(float));
@@ -81,7 +83,7 @@ void cudaMatrix::getDeviceData(float *hdata) {
 
 void cudaMatrix::cudaAdd(const cudaMatrix &b, cudaMatrix &c) {
   cudaError_t err;
-  if (this->numRows == b.getNumRows() && this->numCols() == b.getnumCols()) {
+  if (this->numRows == b.getNumRows() && this->numCols == b.getnumCols()) {
      LaunchAddKernel(devData, b.getDevData(), c.getDevData(), this->numRows, this->numCols);
   } else {
     std::cout<<"Matrix dims must be same, aborting..\n";
