@@ -1,4 +1,4 @@
-##ifndef CUDA_MATRIX_HPP_
+#ifndef CUDA_MATRIX_HPP_
 #define CUDA_MATRIX_HPP_
 #include<iostream>
 #include "../include/cudaKernels.cuh"
@@ -15,9 +15,9 @@ public:
   cudaMatrix(int numRows, int numCols);
   cudaMatrix(float *data, int numRows, int numCols);
   virtual ~cudaMatrix();
-  int getNumRows() const {return numRows};
-  int getnumCols() const {return numCols};
-  void setDeviceData(const float *data); // set device Data;
+  int getNumRows() const {return numRows;}
+  int getnumCols() const {return numCols;}
+  void setDeviceData(const float *data, int elems); // set device Data;
   void getDeviceData(const float *hdata); // get device data in host pointer.
   float * getDevData() const {
      if (devData != NULL) {

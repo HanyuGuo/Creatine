@@ -1,5 +1,7 @@
 #ifndef CUDA_KERNELS_CUH_
 #define CUDA_KERNELS_CUH_
+#include<stdio.h>
+#include<cuda_runtime.h>
 
 
 __global__
