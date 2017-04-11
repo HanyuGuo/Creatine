@@ -18,7 +18,7 @@ void GpMatrix::_initGpMatrix(float *devData,int numRows, int numCols, bool isTra
     deviceData = devData;
     if (_n_elem > 0)
     {
-    	cudaMAlloc((void**)&deviceData,_n_elem*sizeof(float));
+    	cudaMalloc((void**)&deviceData,_n_elem*sizeof(float));
     	//cuBlaserrcheck("failed to init matrix!!\n");
     }
    
@@ -164,7 +164,7 @@ void GpMatrix::add(const GpMatrix &b, float scaleB, GpMatrix &tgt) {
     	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
     	dim3 threads(ELEM_WISE_THX,ELEM_WISE_THY);
     	MatAdd <<< blocks, threads >>> (getDevData(), b.getDevData(),tgt.getDevData(), height,width);
-    	err = getLastCudaError();
+    	err = cudaGetLastError();
     	if (err != cudaSuccess)
     	{
     	   std::cout<<"Error launching kernel...\n";
