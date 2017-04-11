@@ -90,14 +90,14 @@ public:
    }
 
    float *getDevData() const {
-   		return _deviceData;
+   		return deviceData;
    }
 
    float* getoneCell(int i, int j) const{
        if(_isTrans)
-       	return &_deviceData[j*_numRows+i];
+       	return &deviceData[j*_numRows+i];
        else
-       	return &_deviceData[i*_numRows+j];
+       	return &deviceData[i*_numRows+j];
    }
 
    int getStride() const {
