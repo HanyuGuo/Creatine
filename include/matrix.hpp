@@ -19,8 +19,10 @@ private:
   double* _data;
   int64 _numRows, _numCols;
   int64 _numElements;
-  void _init(double* data, int64 numRows, int64 numCols);
+  CBLAS_TRANSPOSE _trans;
+  void _init(double* data, int64 numRows, int64 numCols, bool transpose);
   void _elemWiseLoop(double (*func)(double), Matrix& target);
+  void _elemWiseLoop(double (*func)(double), const double scale, Matrix& target);
   void _elemWiseLoop(double (*func)(double, double), const double scale, Matrix& target);
   void _elemWiseLoop(double (*func)(double, double), const Matrix &m, Matrix& target);
   void _elemWiseLoop(double (*func)(double, double), const Matrix &m, const double scale, Matrix& target);
@@ -57,18 +59,34 @@ public:
     else 
       return false;
   }
+  inline bool istrans() const {
+    return _trans == CblasTrans;
+  }
   void assign(double* data);
+  void T();
+  void add(const Matrix &m);
+  void add(const Matrix &m, const double scale);
   void add(const Matrix &m, const double scale, Matrix &target);  //basic addition
   void add(const double scale, Matrix &target);
   void add(const Matrix &m, Matrix &target);
   void subtract(const Matrix &m, Matrix &target);
   void subtract(const double scale, Matrix &target);
-  void Product(const Matrix &a, const Matrix &b, double scaleAB, Matrix &c);
+  void subtracted(const double scale, Matrix &target);
+  void Product(const Matrix &a, const Matrix &b, double scaleAB, bool aT, bool bT, Matrix &c);
+  void dot(const double scale, Matrix &target);
+  void dot(const Matrix &m, const double scale, Matrix &target);
+  void dot(const Matrix &m, Matrix &target);
   void rightMult(const Matrix &m, const double scale, Matrix &target);
   void rightMult(const Matrix &m, Matrix &target);
+  void rightMult(const Matrix &m, const double scale, Matrix &target, bool thisT, bool mT);
+  void rightMult(const Matrix &m, Matrix &target, bool thisT, bool mT);
   void rightMultPlus(const Matrix &m, const Matrix &p, Matrix &target);
   void eltwiseDivideByScale(const double scale, Matrix &target);
+  void eltwiseScaleDivideByThis(const double scale, Matrix &target);
   void exp(Matrix &target);
+  void exp(const double scale, Matrix &target);
+  void ln(Matrix &target);
+  void log(Matrix &target);
   void reduce_sum(double &sum); // only do all to one currently
 
   ~Matrix();

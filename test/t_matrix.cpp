@@ -27,14 +27,14 @@ int main(void){
 	Matrix C(setC, 3 ,3);
 	Matrix D(setD, 3 ,3);
 	double * reduce_sum = new double;
-	// A.exp(C);
-	A.reduce_sum(*reduce_sum);
-	// for (int i = 0; i< A.getNumRows(); i++){
-	// 	for (int j = 0; j< A.getNumCols(); j++) {
-	// 		cout << " " << C(i, j)<< " ";
-	// 	}
-	// 	cout << endl;
-	// }
+	A.add(A, 2);
+	// A.reduce_sum(*reduce_sum);
+	for (int i = 0; i< A.getNumRows(); i++){
+		for (int j = 0; j< A.getNumCols(); j++) {
+			cout << " " << A(i, j)<< " ";
+		}
+		cout << endl;
+	}
 
 	cout << "reduce_sum: "<< *reduce_sum<<endl;
 	// cout << "Does A has same dim as B: " << A.sameDim(B) << endl;
