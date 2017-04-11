@@ -21,14 +21,14 @@ void GpMatrix::_initGpMatrix(float *devData,int numRows, int numCols, bool isTra
     	cudaMalloc((void**)&deviceData,_n_elem*sizeof(float));
     	//cuBlaserrcheck("failed to init matrix!!\n");
     }
-   
+
     stride = getLeadingDim();
 
 }
 
 
-/* 
-Init the matrix and set the parameters. 
+/*
+Init the matrix and set the parameters.
  */
 GpMatrix::GpMatrix(int numRows, int numCols,bool isTrans){
            _initGpMatrix(NULL,numRows,numCols,true);
@@ -70,10 +70,10 @@ GpMatrix::~GpMatrix() {
 // 	cudaGetDevice(&d);
 // 	return d;
 // }
-/* copy the Gpu matrix to host 
+/* copy the Gpu matrix to host
    Note: This assumes that the Matrix type has similar API to GpMatrix.
 */
-// void GpMatrix::cptoHost(Matrix &mat) const{ 
+// void GpMatrix::cptoHost(Matrix &mat) const{
 //     assert(checkeqDims(mat));
 //     if (getNumElements() > 0)
 //     {
@@ -84,7 +84,7 @@ GpMatrix::~GpMatrix() {
 //     	cuBlaserrcheck("Couldn't write to host memory, read failure \n");
 //     }
 //     }
-   
+
 // }
 
 // void GpMatrix::cpfromHost(Matrix &mat) const{
@@ -116,7 +116,7 @@ void GpMatrix::resize(int numRows,int numCols) {
     		{
     		   cuBlaserrcheck("Cannot free the memory..\n");
     		}
-    	} 
+    	}
         if(numRows*numCols > 0) {
 			cudaError_t status = cudaMalloc((void**) deviceData, numRows*numCols*sizeof(double));
     		if (status != cudaSuccess)
@@ -126,25 +126,16 @@ void GpMatrix::resize(int numRows,int numCols) {
     	    } else {
     		deviceData = NULL;
     	}
-    	
+
     _numRows = numRows;
     _numCols = numCols;
     _n_elem = numRows*numCols;
     stride = getLeadingDim();
     }
-    
+
 
 }
 
-// GpMatrix & GpMatrix::reshape(int numRows, int numCols)  {
-//    assert(checkContiguous());
-//    assert(_n_elem == numRows*numCols); // uh-huh can't reshape into a different matrix
-//    _numRows = numRows;
-//    _numCols = numCols;
-//    stride = getLeadingDim();
-//    return new *GpMatrix(deviceData,numRows,numCols,stride, isTrans);
-
-// }
 
 
 void GpMatrix::matCheckBounds(int numRows, int numCols) const {
@@ -159,6 +150,9 @@ void GpMatrix::add(const GpMatrix &b, float scaleB, GpMatrix &tgt) {
 	assert(getnumCols() == b.getnumCols() && getnumRows() == b.getnumRows());
     int height = getLeadingDim();
     int width = getFollowingDim();
+    if(getDevData() == NULL) {
+      std::cout<<"No data available on GPU\n";
+    }
     if (checkTrans() == b.checkTrans() && tgt.checkTrans() == checkTrans())
     {   std::cout<<"Launching kernel...\n";
     	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
@@ -171,8 +165,8 @@ void GpMatrix::add(const GpMatrix &b, float scaleB, GpMatrix &tgt) {
     	}
     }
 
-	
-			
+
+
 }
 
 void GpMatrix::add(const GpMatrix &b, float scale) {
