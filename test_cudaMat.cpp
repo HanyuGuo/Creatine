@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cuda.h>
-#include "../include/cudaMatrix.hpp"
+#include "include/cudaMatrix.hpp"
 
 int main(int argc, char const *argv[]) {
   float *data1;

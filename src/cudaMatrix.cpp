@@ -81,21 +81,11 @@ void cudaMatrix::getDeviceData(float *hdata) {
 
 void cudaMatrix::cudaAdd(const cudaMatrix &b, cudaMatrix &c) {
   cudaError_t err;
-  // if (this->numElems != b.numElems && this->numElems != c.numElems) {
-  //     std::cout<<" Matrix addition is not possible with different dims";
-  // }
-  int block_dim_x = 32;
-  int block_dim_y = 32;
-  int grid_dim_x = (this->numElems)/block_dim_x;
-  int grid_dim_y = (this->numElems)/block_dim_y;
-  dim3 grid(grid_dim_x,grid_dim_y, 1);
-  dim3 block(block_dim_x, block_dim_y);
-  std::cout << "Launching kernel now..." << '\n';
-  MatAddKernel<<< grid, block >>>(this->devData,b.getDevData(),c.getDevData(), this->numRows, this->numCols);
-  err = cudaGetLastError();
-  if (err != cudaSuccess) {
-    std::cout << "Can't write to device data." << '\n';
+  if (this->numRows == b.getNumRows() && this->numCols() == b.getnumCols()) {
+     LaunchAddKernel(devData, b.getDevData(), c.getDevData(), this->numRows, this->numCols);
+  } else {
+    std::cout<<"Matrix dims must be same, aborting..\n";
+    exit(1);
   }
-
 
 }

@@ -17,8 +17,8 @@ public:
   virtual ~cudaMatrix();
   int getNumRows() const {return numRows;}
   int getnumCols() const {return numCols;}
-  void setDeviceData(const float *data, int elems); // set device Data;
-  void getDeviceData(const float *hdata); // get device data in host pointer.
+  void setDeviceData(float *data, int elems); // set device Data;
+  void getDeviceData(float *hdata); // get device data in host pointer.
   float * getDevData() const {
      if (devData != NULL) {
        return devData;
