@@ -1,6 +1,7 @@
 #include "../include/gpmatrix.cuh"
 #include <iostream>
 #include <vector>
+#include <cuda.h>
 
 
 int main(int argc, char  *argv[])
@@ -11,7 +12,7 @@ int main(int argc, char  *argv[])
      //double *dev_data1, *dev_data2;
      int num_cols = 3;
      int num_rows = 3;
-
+     float *hdat = new float[9];
 	 for(int i=0;i<9;++i) {
 	 	data1[i] = i;
 	 }
@@ -21,8 +22,8 @@ int main(int argc, char  *argv[])
      GpMatrix gp1(data1, 3,3,true);
      GpMatrix gp2(data2, 3,3,true);
      //gp1.add(gp2);
-     gp2.printMat(3,3);
-    // gp1.RightMult(gp2, 1);
+     gp1.RightMult(gp2,1);
+    // cudaMemcpy(hdat,gp1.getDevData(),9*sizeof(float),cudaMemcpyDeviceToHost);
 
      // std::cout << "gp1 rows: "<<gp1.getnumRows() << "gp2 rows: "<<gp2.getnumRows()<<"\n";
      // std::cout << "gp1 cols: "<<gp2.getnumCols() << "gp2 cols: "<<gp2.getnumCols()<<"\n";

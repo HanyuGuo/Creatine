@@ -30,7 +30,7 @@ void GpMatrix::_initGpMatrix(float *devData,int numRows, int numCols, bool isTra
 /* 
 Init the matrix and set the parameters. 
  */
-GpMatrix::GpMatrix(int numRows, int numCols,bool isTrans=false){
+GpMatrix::GpMatrix(int numRows, int numCols,bool isTrans){
            _initGpMatrix(NULL,numRows,numCols,true);
            if (numRows * numCols > 0)
            {
@@ -164,6 +164,7 @@ void GpMatrix::add(const GpMatrix &b, float scaleB, GpMatrix &tgt) {
     	dim3 blocks(width/ELEM_WISE_THX, height/ELEM_WISE_THY);
     	dim3 threads(ELEM_WISE_THX,ELEM_WISE_THY);
     	MatAdd <<< blocks, threads >>> (getDevData(), b.getDevData(),tgt.getDevData(), height,width);
+    	err = getLastCudaError();
     	if (err != cudaSuccess)
     	{
     	   std::cout<<"Error launching kernel...\n";

@@ -64,7 +64,7 @@ class GpMatrix
 public:
    GpMatrix();
    GpMatrix(float *dev_data, int numRows, int numCols,bool isTrans);
-   GpMatrix(int numRows, int numCols, bool isTrans=false);
+   GpMatrix(int numRows, int numCols, bool isTrans);
    ~GpMatrix();
    static int getDeviceID();
 
