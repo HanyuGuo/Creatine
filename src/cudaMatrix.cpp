@@ -1,6 +1,7 @@
 #include <iostream>
 #include <assert.h>
 #include <cuda.h>
+#include<stdio.h>
 #include "../include/cudaMatrix.hpp"
 
 
@@ -89,14 +90,14 @@ __device__ __host__ void cudaMatrix::cudaAdd(const cudaMatrix &b, cudaMatrix &c)
     int grid_dim_y = (numRows*numCols)/block_dim_y;
     dim3 grid(grid_dim_x,grid_dim_y, 1);
     dim3 block(block_dim_x, block_dim_y);
-    std::cout<<"Launching kernel now...\n";
-    MatAddKernel<<< grid, block >>>(ddata1,ddata2,resddata, numRows, numCols);
+    //std::cout<<"Launching kernel now...\n";
+    MatAddKernel<<< grid, block >>>(this->getDevData(),b.getDevData(),c.getDevData(),this->numRows, this->numCols);
     err = cudaGetLastError();
     if (err != cudaSuccess) {
-      std::cout<<"error launching kernel\n";
+      printf("error launching kernel\n");
     }
   } else {
-    std::cout<<"Matrix dims must be same, aborting..\n";
+    printf("Matrix dims must be same, aborting..\n");
     exit(1);
   }
 
