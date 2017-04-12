@@ -1,10 +1,11 @@
-objects: cudaMat.o test_cudaMat.o cudaKern.o
+all:cudaMatrix.o test_cudaMat.o cudaKernel.o
+	nvcc cudaMatrix.o test_cudaMat.o cudaKernel.o -o cudaTest -lcudart -lcuda
 
-all:$(objects)
-	nvcc $(objects) -o cudatest
+cudaMatrix.o: cudaMatrix.cpp
+	nvcc -x cu -I. -dc $< -o $@
 
-%.o:cudaMatrix.cpp test_cudaMat.cpp cudaKernels.cu
-	nvcc -x cu -I . -dc $< -o $@
+test_cudaMat.o: test_cudaMat.cpp
+	nvcc -x cu -I. -dc $< -o $@
 
-clean:
-	rm -rf *.o cudatest
+cudaKernel.o:cudaKernels.cu
+	nvcc $< -o $@

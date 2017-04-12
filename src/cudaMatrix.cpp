@@ -1,7 +1,6 @@
 #include <iostream>
 #include <assert.h>
 #include <cuda.h>
-#include<cuda_helper.h>
 #include "../include/cudaMatrix.hpp"
 
 
