@@ -16,7 +16,7 @@ public:
   cudaMatrix(float *data, int numRows, int numCols);
   virtual ~cudaMatrix();
   int getNumRows() const {return numRows;}
-  int getnumCols() const {return numCols;}
+  int getNumCols() const {return numCols;}
   void setDeviceData(float *data, int elems); // set device Data;
   void getDeviceData(float *hdata); // get device data in host pointer.
   float * getDevData() const {
@@ -28,8 +28,12 @@ public:
      }
 
   }
-  __host__ __device__ void cudaAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix addition kernel.
-  //void cudaAdd(const cudaMatrix &b);
+  void cudaAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix addition kernel.
+  void cudaWeightedAdd(const cudaMatrix &b,cudaMatrix &c,float scale); // WeightedAdd kernel.
+  void cudaElemWiseMult(const cudaMatrix &b, cudaMatrix &c);
+  void cudaElemWiseDivide(const cudaMatrix &b, cudaMatrix &c);
+  //void cudaElemWiseMult(const cudaMatrix &b, cudaMatrix &c);
+
 };
 
 

@@ -14,11 +14,13 @@ public:
   cudaMatrix(float *data, int numRows, int numCols);
   virtual ~cudaMatrix();
   int getNumRows() const {return numRows};
-  int getnumCols() const {return numCols};
-  void setDeviceData(const float *data); // set device Data;
-  void getDeviceData(const float *hdata); // get device data in host pointer.
-  void cudaAdd(float *a, float *b, int numRows, int numCols); // Matrix addition kernel.
-  void cudaAdd(float *a, float *b);
+  int getNumCols() const {return numCols};
+  float *getDevData() const {return devData};
+ void setDeviceData(const float *data); // set device Data;
+ void getDeviceData(const float *hdata); // get device data in host pointer.
+ void cudaAdd(const cudaMatrix &b, cudaMatrix &c, float scale);
+ void cudaWeightedAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix multiplication
+
 };
 
 
