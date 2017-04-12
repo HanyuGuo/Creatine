@@ -1,5 +1,5 @@
-#ifndef CUDA_MATRIX_HPP_
-#define CUDA_MATRIX_HPP_
+#ifndef _CUDA_MATRIX_HPP_
+#define _CUDA_MATRIX_HPP_
 #include<iostream>
 #include "../include/cudaKernels.cuh"
 
@@ -28,7 +28,7 @@ public:
      }
 
   }
-  __device__ void cudaAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix addition kernel.
+  __host__ __device__ void cudaAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix addition kernel.
   //void cudaAdd(const cudaMatrix &b);
 };
 

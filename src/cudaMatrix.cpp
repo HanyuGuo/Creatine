@@ -81,10 +81,21 @@ void cudaMatrix::getDeviceData(float *hdata) {
 
 
 
-void cudaMatrix::cudaAdd(const cudaMatrix &b, cudaMatrix &c) {
+__device__ __host__ void cudaMatrix::cudaAdd(const cudaMatrix &b, cudaMatrix &c) {
   cudaError_t err;
   if (this->numRows == b.getNumRows() && this->numCols == b.getnumCols()) {
-     LaunchAddKernel(devData, b.getDevData(), c.getDevData(), this->numRows, this->numCols);
+    int block_dim_x = 32;
+    int block_dim_y = 32;
+    int grid_dim_x = (numRows*numCols)/block_dim_x;
+    int grid_dim_y = (numRows*numCols)/block_dim_y;
+    dim3 grid(grid_dim_x,grid_dim_y, 1);
+    dim3 block(block_dim_x, block_dim_y);
+    std::cout<<"Launching kernel now...\n";
+    MatAddKernel<<< grid, block >>>(ddata1,ddata2,resddata, numRows, numCols);
+    err = cudaGetLastError();
+    if (err != cudaSuccess) {
+      std::cout<<"error launching kernel\n";
+    }
   } else {
     std::cout<<"Matrix dims must be same, aborting..\n";
     exit(1);

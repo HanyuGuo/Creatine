@@ -1,9 +1,10 @@
-ROOT_DIR='$HOME/Software/Creatine'
-INCLUDE_DIR='$ROOT_DIR/include'
-SRC_DIR='$ROOT_DIR/src'
+objects: cudaMat.o test_cudaMat.o cudaKern.o
 
-all:gpmat.cu.o
-	g++ -o gpmtest -lcudart gpmat.o
+all:$(objects)
+	nvcc $(objects) -o cudatest
 
-gpmat.cu.o:gpmatrix.cu gpmatrix.cu
-	nvcc -c $SRC_DIR/gpmatrix.cu -o $@
+%.o:cudaMatrix.cpp test_cudaMat.cpp cudaKernels.cu
+	nvcc -x cu -I . -dc $< -o $@
+
+clean:
+	rm -rf *.o cudatest
