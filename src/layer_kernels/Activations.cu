@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <cuda.h>
-#include "../include/Activations.cuh"
+
+#include "../../include/Activations.cuh"
 
 /* activation kernels */
 __device__ float sigmoid_activation_kernel(float x){
-  return 1/(1+exp(-x));
+   float y = 1./(1.+expf(-x));
+  //  printf("%.2f ",y);
+   return y;
 }
 
 
@@ -25,13 +28,13 @@ __device__ float elu_activation_kernel(float x){
 }
 
 
-__device__ float linear_activation_kernel(float x){return x};
+__device__ float linear_activation_kernel(float x){return x;}
 __device__ float logistic_activation_kernel(float x){return 1./(1.+exp(-x));}
 
 /* gradient kernels */
 
 __device__ float sigmoid_gradient_kernel(float x){
-
+   return (-x*exp(-x));
 }
 
 __device__ float tanh_gradient_kernel(float x){
@@ -63,30 +66,31 @@ __device__ float elu_gradient_kernel(float x) {
 __device__ float logistic_gradient_kernel(float x){return (1-x)*x;}
 
 
-__device__ select_activation(float x, Activation a) {
+__device__ float select_activation(float x, Activation a) {
   switch (a) {
     case SIGMOID:
-           sigmoid_activation_kernel(x);
+           return sigmoid_activation_kernel(x);
            break;
     case TANH:
-           tanh_activation_kernel(x);
+           return tanh_activation_kernel(x);
            break;
     case RELU:
-          relu_activation_kernel(x);
+          return relu_activation_kernel(x);
           break;
     case ELU:
-          elu_activation_kernel(x);
+          return elu_activation_kernel(x);
           break;
     case LINEAR:
-          linear_activation_kernel(x);
+          return linear_activation_kernel(x);
           break;
     case LOGISTIC:
-          logistic_activation_kernel(x);
+          return logistic_activation_kernel(x);
           break;
     default:
-          relu_activation_kernel(x);
+          return relu_activation_kernel(x);
           break;
   }
+  return 0;
 }
 
 
@@ -94,7 +98,8 @@ __global__ void launch_activations_on_gpu(float *x,int numElems,Activation a){
     int blockId = blockIdx.x + gridDim.x*blockIdx.y;
     int i = blockId + threadIdx.x;
     if (i<numElems) {
-      select_activation(x[i],a);
+      x[i] = select_activation(x[i],a);
+      printf("i:%d, %.2f \n",i,x[i]);
     }
 
 
@@ -102,11 +107,19 @@ __global__ void launch_activations_on_gpu(float *x,int numElems,Activation a){
 
 void activations_on_gpu(float *x ,int numElems, Activation a){
   cudaError_t err;
-  dim3 block(32,1);
-  dim3 grid(16,16);
+  // alg from darknet
+  int block = 512;
+  int k = (numElems-1)/block;
+  int y = 1;
+  int x_direction = k;
+  // if (x>65535) {
+  //   x = ceil(sqrt(k));
+  // }
+  dim3 grid(x_direction,y,1);
+  printf("Launcing the requested kernels...\n");
   launch_activations_on_gpu<<< grid, block >>> (x,numElems,a);
   err = cudaGetLastError();
   if (err != cudaSuccess) {
-    pritnf("Can't launch the activation kernels.\n");
+    printf("Can't launch the activation kernels.\n");
   }
 }
