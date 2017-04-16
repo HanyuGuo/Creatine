@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <cuda.h>
 #include <stdio.h>
+#include <cublas_v2.h>
 #include "../include/cudaMatrix.hpp"
 
 
@@ -188,4 +189,67 @@ void cudaMatrix::cudaElemWiseDivide(const cudaMatrix &b, cudaMatrix &c) {
     printf("Matrix dims must be the same, aborting...\n");
     exit(1);
   }
+}
+
+
+void cudaMatrix::powgpu(int scale, int n){
+  cudaError_t err;
+  int block_x = 512; // for max threads per block
+  int grid_x = (numElems-1)/block_x;
+  dim3 grid(grid_x,1,1);
+  dim3 block(block_x,1,1);
+  powgpu_kernel <<<grid, block >>>(devData,n,scale);
+  err = cudaGetLastError();
+  if (err != cudaSuccess) {
+    printf("Couldn't launch power gpu kernel..\n");
+  }
+
+}
+
+
+
+void cudaMatrix::expgpu(int n) {
+  cudaError_t err;
+  int block_x = 512; // for max threads per block
+  int grid_x = (numElems-1)/block_x;
+  dim3 grid(grid_x,1,1);
+  dim3 block(block_x,1,1);
+  expgpu_kernel <<<grid, block >>>(devData, n);
+  err = cudaGetLastError();
+  if (err != cudaSuccess) {
+    printf("Couldn't launch exp gpu kernel..\n");
+  }
+}
+
+
+void cudaMatrix::axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy,cudaMatrix &tgt){
+  cudaError_t err;
+  int block_x = 512;
+  int grid_x = (numElems-1)/block_x;
+  dim3 grid(grid_x,1,1);
+  dim3 block(block_x,1,1);
+  printf("Launching axpy kernel...\n");
+  axpy_kernel <<< grid, block >>> (devData,b.getDevData(),scaleA,ldx,ldy,numElems,tgt.getDevData());
+  err = cudaGetLastError();
+  if (err != cudaSuccess) {
+    printf("Couldn't launch axpy gpu kernel..\n");
+  }
+}
+
+void cudaMatrix::gemm_ongpu(bool tA, bool tB, const cudaMatrix &b, float scaleA, float scaleB, cudaMatrix &tgt){
+  cudaError_t err;
+  int m = b.getNumCols();
+  int k = numCols;
+  int n = numRows;
+  cublasHandle_t handle;
+  cublasCreate(&handle);
+
+    cublasSgemm(handle,(tA?CUBLAS_OP_T:CUBLAS_OP_N),(tB?CUBLAS_OP_T:CUBLAS_OP_N),
+                m,n,k,&scaleA,b.getDevData(),b.getLeadingDim(),devData,numCols,&scaleB,tgt.getDevData(),tgt.getLeadingDim());
+    err = cudaGetLastError();
+    if (err != cudaSuccess) {
+      printf("Cannot do Sgemm..\n");
+    }
+
+
 }
