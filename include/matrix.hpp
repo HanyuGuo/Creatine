@@ -63,6 +63,7 @@ public:
     return _trans == CblasTrans;
   }
   void assign(double* data);
+  void copyTo(Matrix &m);
   void T();
   void add(const Matrix &m);
   void add(const Matrix &m, const double scale);
@@ -82,12 +83,18 @@ public:
   void rightMult(const Matrix &m, Matrix &target, bool thisT, bool mT);
   void rightMultPlus(const Matrix &m, const Matrix &p, Matrix &target);
   void eltwiseDivideByScale(const double scale, Matrix &target);
+  void eltwiseDivide(const Matrix &m, Matrix &target);
   void eltwiseScaleDivideByThis(const double scale, Matrix &target);
   void exp(Matrix &target);
   void exp(const double scale, Matrix &target);
   void ln(Matrix &target);
   void log(Matrix &target);
-  void reduce_sum(double &sum); // only do all to one currently
+  void reduce_sum(Matrix &sum); // only do all to one currently
+  double max() const;
+  void max(const double scale, Matrix &target);
+  void reluGrads(const Matrix &m, Matrix &target);
+  void sigmoidGrads(const Matrix &m,  Matrix &target);
+  void argmax(double * result);
 
   ~Matrix();
 };
