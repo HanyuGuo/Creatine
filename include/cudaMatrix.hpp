@@ -1,6 +1,8 @@
 #ifndef _CUDA_MATRIX_HPP_
 #define _CUDA_MATRIX_HPP_
 #include<iostream>
+#include <vector>
+#include<algorithm>
 #include "../include/cudaKernels.cuh"
 
 class cudaMatrix {
@@ -9,8 +11,12 @@ private:
   int numCols;
   int numRows;
   int numElems;
+  int gpuid;
   void _init(float *data, int numRows, int numCols);
-
+  void setbestcudaDevice();
+  int ci(int row, int column, int nColumns) {
+    return row*nColumns+column;
+  }
 public:
   cudaMatrix(int numRows, int numCols);
   cudaMatrix(float *data, int numRows, int numCols);
@@ -31,6 +37,8 @@ public:
      }
 
   }
+  cudaMatrix* slice(int startrow, int endrow,  int startcol, int endcol, int stridea);
+  // float * reshape_data(float *data, int numCols, int numRows);
   void cudaAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix addition kernel.
   void cudaWeightedAdd(const cudaMatrix &b,cudaMatrix &c,float scale); // WeightedAdd kernel.
   void cudaElemWiseMult(const cudaMatrix &b, cudaMatrix &c);
