@@ -37,7 +37,7 @@ public:
      }
 
   }
-  cudaMatrix* slice(int startrow, int endrow,  int startcol, int endcol, int stridea);
+  void cudaAddv(const cudaMatrix &b, float scale, cudaMatrix &tgt);
   // float * reshape_data(float *data, int numCols, int numRows);
   void cudaAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix addition kernel.
   void cudaWeightedAdd(const cudaMatrix &b,cudaMatrix &c,float scale); // WeightedAdd kernel.

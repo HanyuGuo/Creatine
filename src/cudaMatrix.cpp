@@ -294,7 +294,18 @@ void cudaMatrix::gemm_ongpu(bool tA, bool tB, const cudaMatrix &b, float scaleA,
     }
 
 }
-
-cudaMatrix* cudaMatrix::slice(int startrow, int endrow, int startcol, int endcol, int stridea){
-  return new cudaMatrix(devData+startrow*stridea+startcol, endrow-startrow,endcol-startcol);
+void cudaMatrix::cudaAddv(const cudaMatrix &b, float scale, cudaMatrix &c) {
+    cudaError_t err;
+    int block_dim_x = 4;
+    int block_dim_y = 4;
+    int grid_dim_x = (numRows*numCols)/block_dim_x;
+    int grid_dim_y = (numRows*numCols)/block_dim_y;
+    dim3 grid(grid_dim_x, grid_dim_y,1);
+    dim3 block(block_dim_x,block_dim_y);
+    add_mat_vec_kernel <<<grid, block >>> (devData,b.getDevData(),numRows,numCols,scale,c.getDevData());
+    err = cudaGetLastError();
+    printf("err %d",err);
+    if (err != cudaSuccess) {
+      printf("can't add matrices and vectors.\n");
+    }
 }
