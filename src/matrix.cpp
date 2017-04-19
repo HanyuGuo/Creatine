@@ -1,6 +1,6 @@
 #include "../include/matrix.hpp"
 
-void Matrix::_init(double* data, int64 numRows, int64 numCols, bool transpose) {
+void Matrix::_init(float* data, int64 numRows, int64 numCols, bool transpose) {
   _data = data;
   _numRows = numRows;
   _numCols = numCols;
@@ -8,28 +8,31 @@ void Matrix::_init(double* data, int64 numRows, int64 numCols, bool transpose) {
   _trans = transpose ? CblasTrans : CblasNoTrans;
 }
 
+
 Matrix::Matrix(){
   _init(NULL, 0, 0, false);
 }
 
 Matrix::Matrix(int64 numRows, int64 numCols) {
   _init(NULL, numRows, numCols, false);
-  this->_data = numRows * numCols > 0 ? new double[this->_numElements] : NULL;
+  this->_data = numRows * numCols > 0 ? new float[this->_numElements] : NULL;
 }
 
 Matrix::Matrix(const Matrix &like) {
   _init(NULL, like.getNumRows(), like.getNumCols(), false);
-  this->_data = new double[this->_numElements];
+  this->_data = new float[this->_numElements];
   for (int i = 0; i < _numElements; i++)
     this->_data[i] = 0;
 }
 
-Matrix::Matrix(double* data, int64 numRows, int64 numCols) {
+Matrix::Matrix(float* data, int64 numRows, int64 numCols) {
   _init(data, numRows, numCols, false);
 }
 
 
-void Matrix::_elemWiseLoop(double (*func)(double), Matrix& target) {
+
+
+void Matrix::_elemWiseLoop(float (*func)(float), Matrix& target) {
   for (int64 i=0; i < getNumRows(); i++) {
     for (int64 j=0; j < getNumCols(); j++) {
       target(i, j) = (*func)((*this)(i,j));
@@ -37,7 +40,7 @@ void Matrix::_elemWiseLoop(double (*func)(double), Matrix& target) {
   }
 }
 
-void Matrix::_elemWiseLoop(double (*func)(double), const double scale, Matrix& target) {
+void Matrix::_elemWiseLoop(float (*func)(float), const float scale, Matrix& target) {
   for (int64 i=0; i < getNumRows(); i++) {
     for (int64 j=0; j < getNumCols(); j++) {
       target(i, j) = (*func)(scale * (*this)(i,j));
@@ -46,7 +49,7 @@ void Matrix::_elemWiseLoop(double (*func)(double), const double scale, Matrix& t
 }
 
 
-void Matrix::_elemWiseLoop(double (*func)(double, double), const double scale, Matrix &target) {
+void Matrix::_elemWiseLoop(float (*func)(float, float), const float scale, Matrix &target) {
   for (int64 i=0; i < getNumRows(); i++) {
     for (int64 j=0; j < getNumCols(); j++) {
       target(i, j) = (*func)((*this)(i,j), scale);
@@ -54,7 +57,7 @@ void Matrix::_elemWiseLoop(double (*func)(double, double), const double scale, M
   }
 }
 
-void Matrix::_elemWiseLoop(double (*func)(double, double), const Matrix &m, Matrix &target) {
+void Matrix::_elemWiseLoop(float (*func)(float, float), const Matrix &m, Matrix &target) {
   for (int64 i=0; i < getNumRows(); i++) {
     for (int64 j=0; j < getNumCols(); j++) {
       target(i, j) = (*func)((*this)(i,j), m(i,j));
@@ -62,7 +65,7 @@ void Matrix::_elemWiseLoop(double (*func)(double, double), const Matrix &m, Matr
   }
 }
 
-void Matrix::_elemWiseLoop(double (*func)(double, double), const Matrix &m, const double scale, Matrix &target) {
+void Matrix::_elemWiseLoop(float (*func)(float, float), const Matrix &m, const float scale, Matrix &target) {
   for (int64 i=0; i < getNumRows(); i++) {
     for (int64 j=0; j < getNumCols(); j++) {
       target(i, j) = (*func)((*this)(i,j), m(0,j)) * scale;
@@ -70,7 +73,7 @@ void Matrix::_elemWiseLoop(double (*func)(double, double), const Matrix &m, cons
   }
 }
 
-void Matrix::_elemWiseLoop(double (*func)(double, double, double), const Matrix &m, const double scale, Matrix &target) {
+void Matrix::_elemWiseLoop(float (*func)(float, float, float), const Matrix &m, const float scale, Matrix &target) {
   for (int64 i=0; i < getNumRows(); i++) {
     for (int64 j=0; j < getNumCols(); j++) {
       target(i, j) = (*func)((*this)(i,j), m(i,j), scale);
@@ -78,7 +81,7 @@ void Matrix::_elemWiseLoop(double (*func)(double, double, double), const Matrix 
   }
 }
 
-void Matrix::assign(double* data) {
+void Matrix::assign(float* data) {
   _data = data;
 }
 
@@ -100,19 +103,19 @@ void Matrix::add(const Matrix &m) {
   add(m, 0);
 }
 
-void Matrix::add(const Matrix &m, const double scale) {
+void Matrix::add(const Matrix &m, const float scale) {
   assert(this->sameDim(m));
   _elemWiseLoop(&_addScaleY, m, scale, *this);
 }
 
 
 // target = (this + m)*scale
-void Matrix::add(const Matrix &m, const double scale, Matrix &target) {
+void Matrix::add(const Matrix &m, const float scale, Matrix &target) {
   // assert(this->sameDim(m));
   _elemWiseLoop(&_add, m, scale, target);
 }
 
-void Matrix::add(const double scale, Matrix &target) {
+void Matrix::add(const float scale, Matrix &target) {
   _elemWiseLoop(&_add, scale, target);
 }
 
@@ -125,23 +128,23 @@ void Matrix::subtract(const Matrix &m, Matrix &target) {
   _elemWiseLoop(&_addScaleY, m, -1, target);
 }
 
-void Matrix::subtract(const double scale, Matrix &target) {
+void Matrix::subtract(const float scale, Matrix &target) {
   _elemWiseLoop(&_add, -scale, target);
 }
 
-void Matrix::subtracted(const double scale, Matrix &target) {
+void Matrix::subtracted(const float scale, Matrix &target) {
   Matrix tempM(target);
   _elemWiseLoop(&_add, -scale, tempM);
   tempM.dot(-1, target);
 }
 
 // target = this * scale
-void Matrix::dot(const double scale, Matrix &target) {
+void Matrix::dot(const float scale, Matrix &target) {
   _elemWiseLoop(&_mul, scale, target);
 }
 
 // target = dot(this, m) * scale
-void Matrix::dot(const Matrix &m, const double scale, Matrix &target) {
+void Matrix::dot(const Matrix &m, const float scale, Matrix &target) {
   _elemWiseLoop(&_mul, m, scale, target);
 }
 
@@ -152,7 +155,7 @@ void Matrix::dot(const Matrix &m, Matrix &target) {
 
 
 // target = scale * this * m
-void Matrix::rightMult(const Matrix &m, const double scale, Matrix &target) {
+void Matrix::rightMult(const Matrix &m, const float scale, Matrix &target) {
   Product(*this, m, scale, false,  false, target);
 }
 
@@ -162,7 +165,7 @@ void Matrix::rightMult(const Matrix &m, Matrix &target) {
 }
 
 // target = scale * this * m (transpose)
-void Matrix::rightMult(const Matrix &m, const double scale, Matrix &target, bool thisT, bool mT) {
+void Matrix::rightMult(const Matrix &m, const float scale, Matrix &target, bool thisT, bool mT) {
   Product(*this, m, scale, thisT, mT, target);
 }
 
@@ -179,7 +182,7 @@ void Matrix::rightMultPlus(const Matrix &m, const Matrix &p, Matrix &target) {
 }
 
 
-void Matrix::Product(const Matrix &a, const Matrix &b, double scaleAB, bool aT, bool bT, Matrix &c) {
+void Matrix::Product(const Matrix &a, const Matrix &b, float scaleAB, bool aT, bool bT, Matrix &c) {
 
   if (!aT && !bT) {
     assert(a.getNumCols() == b.getNumRows());
@@ -206,12 +209,12 @@ void Matrix::Product(const Matrix &a, const Matrix &b, double scaleAB, bool aT, 
 
   CBLAS_TRANSPOSE aTrans = aT ? CblasTrans : CblasNoTrans;
   CBLAS_TRANSPOSE bTrans = bT ? CblasTrans : CblasNoTrans;
-  cblas_dgemm(CblasRowMajor, aTrans, bTrans, c._numRows, c._numCols, a._numCols, scaleAB, a._data,
-    a._numCols, b._data, b._numCols, 1, c._data, c._numCols);
+  cblas_sgemm(CblasRowMajor, aTrans, bTrans, c.getNumRows(), c.getNumCols(), a.getNumCols(), scaleAB, a.getData(),
+    a.getNumCols(), b.getData(), b.getNumCols(), 1, c.getData(), c.getNumCols());
 
 }
 
-void Matrix::eltwiseDivideByScale(const double scale, Matrix &target) {
+void Matrix::eltwiseDivideByScale(const float scale, Matrix &target) {
   _elemWiseLoop(&_divide, scale, target);
 }
 
@@ -223,7 +226,7 @@ void Matrix::eltwiseDivide(const Matrix &m, Matrix &target) {
   }
 }
 
-void Matrix::eltwiseScaleDivideByThis(const double scale, Matrix &target) {
+void Matrix::eltwiseScaleDivideByThis(const float scale, Matrix &target) {
   _elemWiseLoop(&_divided, scale, target);
 }
 
@@ -235,7 +238,7 @@ void Matrix::exp(Matrix &target) {
   tempM._elemWiseLoop(&_exp, target);
 }
 
-void Matrix::exp(const double scale, Matrix &target) {
+void Matrix::exp(const float scale, Matrix &target) {
   // using namespace std;
   // cout << max() << endl;
   // Matrix tempM(target);
@@ -261,12 +264,12 @@ void Matrix::reduce_sum(Matrix &sum) {
   }
 }
 
-void Matrix::max(const double scale, Matrix &target) {
+void Matrix::max(const float scale, Matrix &target) {
   _elemWiseLoop(&_max, scale, target);
 }
 
-double Matrix::max() const{
-  double max = (*this)(0,0); 
+float Matrix::max() const{
+  float max = (*this)(0,0); 
   for (int64 i=0; i < getNumRows(); i++) {
     for (int64 j=0; j < getNumCols(); j++) {
       if (max < (*this)(i,j))
@@ -295,9 +298,9 @@ void Matrix::sigmoidGrads(const Matrix &m,  Matrix &target) {
   }
 }
 
-void Matrix::argmax(double * result) {
+void Matrix::argmax(float * result) {
   for (int64 i=0; i < (*this).getNumRows(); i++) {
-    double temp = (*this)(i,0);
+    float temp = (*this)(i,0);
     result[i] = 0;
     for (int64 j=1; j < (*this).getNumCols(); j++) {
       if (temp < (*this)(i,j)) {

@@ -1,28 +1,39 @@
 #include "../../include/layers/layer.hpp"
 
 
-void ip_layer::_init(int64 input_s, int64 bs) {
+void ip_layer::_init(int64 bs, int64 input_s, bool GPU) {
+  _GPU = GPU;
   assert(input_s >= 0);
-  _input = new Matrix(bs, input_s);
-  _output = _input;
-  _parGrads = new Matrix(bs, input_s);
+  if (GPU){
+    _cudaInput = new cudaMatrix(bs, input_s);
+    _cudaOutput = _cudaInput;
+  }
+  else {
+    _input = new Matrix(bs, input_s);
+    _output = _input;
+    _parGrads = new Matrix(bs, input_s);
+  }
+
 }
 
 ip_layer::ip_layer() {
-  _init(0, 0);
+  _init(0, 0, false);
 }
 
-ip_layer::ip_layer(int64 input_s, int64 bs) {
-  _init(input_s, bs);
+ip_layer::ip_layer(int64 bs, int64 input_s) {
+  _init(bs, input_s, false);
 }
 
-void ip_layer::peek() {
-  using namespace std;
-  cout << "peek input layer: " <<_input -> getCell(0, 0) << endl;
+ip_layer::ip_layer(int64 bs, int64 input_s, bool GPU) {
+  _init(bs, input_s, GPU);
 }
 
-void ip_layer::feed(double* input) {
-  _input -> assign(input);
+
+void ip_layer::feed(float* input, int elems) {
+  if(_GPU)
+    _cudaInput -> setDeviceData(input, elems);
+  else
+    _input -> assign(input);
 }
 
 void ip_layer::forward(PASS_TYPE pass_type) {
@@ -37,104 +48,170 @@ Matrix* ip_layer::getFprop() const {
   return _output;
 }
 
+cudaMatrix* ip_layer::getFprop(bool GPU) const {
+  return _cudaOutput;
+}
+
 Matrix* ip_layer::getBprop() const {
   return _parGrads;
 }
 
 ip_layer::~ip_layer() {
  // delete _input;
- delete _parGrads;
+  if (_GPU)
+    delete _cudaInput;
+  else
+    delete _parGrads;
 }
 
 /*-------------------------fc layer-------------------------*/
 
-void fc_layer::_init(int64 input_s, int64 output_s, int64 bs, bool biasThis) {
+void fc_layer::_init(int64 bs, int64 input_s, int64 output_s, bool biasThis, bool GPU) {
+  _GPU = GPU;
+  _bs = bs; 
+  _input_s = input_s;
+  _output_s = output_s;
   assert(input_s >= 0 && output_s >=0);
-  _input = new Matrix(bs, input_s);
-  _output = new Matrix(bs, output_s);
-  weight_init = new double[input_s * output_s];
-  bias_init = new double[output_s];
-  for (int i=0; i<input_s * output_s; i++) {
-  	weight_init[i] = ((double) rand() / (RAND_MAX)) + 1;
+  if (_GPU){
+    _input = new Matrix(bs, input_s);
+    _output = new Matrix(bs, output_s);
+    weight_init = new float[input_s * output_s];
+    bias_init = new float[output_s];
+    for (int i=0; i< input_s * output_s; i++) {
+      weight_init[i] = ((float) rand() / (RAND_MAX)) + 1;
+    }
+    for (int i=0; i< output_s; i++) {
+      bias_init[i] = ((float) rand() / (RAND_MAX)) + 1;
+    }
+    _weight = new Matrix(weight_init, input_s, output_s);
+    _bias = new Matrix(bias_init, 1, output_s);
+    // _parGrads = new Matrix(1, input_s);
+    // _parGrads_w = new Matrix(input_s, output_s);
+    // _parGrads_b = new Matrix(1, output_s);
   }
-  for (int i=0; i<output_s; i++) {
-  	bias_init[i] = ((double) rand() / (RAND_MAX)) + 1;
+  else {
+    _cudaInput = new cudaMatrix(bs, input_s);
+    _cudaOutput = new cudaMatrix(bs, output_s);
+    weight_init = new float[input_s * output_s];
+    bias_init = new float[output_s];
+    for (int i=0; i< input_s * output_s; i++) {
+      weight_init[i] = ((float) rand() / (RAND_MAX)) + 1;
+    }
+    for (int i=0; i< output_s; i++) {
+      bias_init[i] = ((float) rand() / (RAND_MAX)) + 1;
+    }
+    _cudaWeight = new cudaMatrix(weight_init, input_s, output_s);
+    _cudaBias = new cudaMatrix(bias_init, 1, output_s);
   }
-  _weight = new Matrix(weight_init, input_s, output_s);
-  _bias = new Matrix(bias_init, 1, output_s);
-  _parGrads = new Matrix(1, input_s);
-  _parGrads_w = new Matrix(input_s, output_s);
-  _parGrads_b = new Matrix(1, output_s);
+
 }
 
 fc_layer::fc_layer() {
-  _init(0, 0, 0,true);
+  _init(0, 0, 0,true, false);
 }
 
-fc_layer::fc_layer(int64 input_s, int64 output_s, int64 bs) {
-  _init(input_s, output_s, bs, true);
+fc_layer::fc_layer(int64 bs, int64 input_s, int64 output_s) {
+  _init(bs, input_s, output_s, true, false);
 }
 
-fc_layer::fc_layer(int64 input_s, int64 output_s, int64 bs, bool biasThis) {
-  _init(input_s, output_s, bs, biasThis);
+fc_layer::fc_layer(int64 bs, int64 input_s, int64 output_s,  bool biasThis) {
+  _init(bs, input_s, output_s, biasThis, false);
+}
+
+fc_layer::fc_layer(int64 bs, int64 input_s, int64 output_s,  bool biasThis, bool GPU) {
+  _init(bs, input_s, output_s, biasThis, GPU);
 }
 
 void fc_layer::loadW(const char* path) {
-  load(path, weight_init);
-  _weight -> assign(weight_init);
+  // load(path, weight_init);
+  // if(_GPU) {
+  //   _cudaWeight -> setDeviceData(weight_init, _input_s*_output_s);
+  // }
+  // else {
+  //   _weight -> assign(weight_init);
+  // }
+
 }
 void fc_layer::loadB(const char* path) {
-  load(path, bias_init);
-  _bias -> assign(bias_init);
+  // load(path, bias_init);
+  // if(_GPU) {
+  //   _cudaBias -> setDeviceData(bias_init, 1*_output_s);
+  // }
+  // else {
+  //   _bias -> assign(bias_init);
+  // }
+
 }
 
 void fc_layer::feed(Matrix* input) {
 	_input = input; 
+}
 
+void fc_layer::feed(cudaMatrix* input) {
+  _cudaInput = input;
 }
 
 void  fc_layer::feedGrad(Matrix* prev_parGrads) {
-  _prev_parGrads = prev_parGrads;
+  // _prev_parGrads = prev_parGrads;
 }
 
+//x*w+b
 void fc_layer::forward(PASS_TYPE pass_type) {
-  _input -> rightMultPlus(*_weight, *_bias, *_output);
+  if (_GPU) {
+    cudaMatrix tempProduct(_bs, _output_s);
+    // _cudaInput -> gemm_ongpu(false, false, *_cudaWeight, 1, 1, tempProduct);
+    // tempProduct.cudaAdd(tempProduct, *_cudaOutput);
+  }
+  else {
+    _input -> rightMultPlus(*_weight, *_bias, *_output);    
+  }
+
 }
+
+
 
 
 void fc_layer::calcParGrads(PASS_TYPE pass_type) {
-  _input -> rightMult(*_prev_parGrads, *_parGrads_w, true, false);
-  _parGrads_b -> copyTo(*_prev_parGrads);
+  // _input -> rightMult(*_prev_parGrads, *_parGrads_w, true, false);
+  // _parGrads_b -> copyTo(*_prev_parGrads);
 }
 
 //
 void fc_layer::backward(PASS_TYPE pass_type) {
-  _prev_parGrads -> rightMult(*_weight, *_parGrads, false, true);
+  // _prev_parGrads -> rightMult(*_weight, *_parGrads, false, true);
 
 
 }
 
-void fc_layer::applyGrads(double learningRate) {
-  _weight -> add(*_parGrads_w, -learningRate);
-  _bias -> add(*_parGrads_b, -learningRate);
+void fc_layer::applyGrads(float learningRate) {
+  // _weight -> add(*_parGrads_w, -learningRate);
+  // _bias -> add(*_parGrads_b, -learningRate);
 }
 
 Matrix* fc_layer::getFprop() const {
   return _output;
 }
 
-Matrix* fc_layer::getBprop() const {
-  return _parGrads;
-}
+// Matrix* fc_layer::getBprop() const {
+//   return _parGrads;
+// }
 
 fc_layer::~fc_layer() {
+  if(_GPU) {
+    delete _cudaOutput;
+    delete _cudaWeight;
+    delete _cudaBias;
+  }
+  else {
+    delete _output;
+    delete _weight;
+    delete _bias;
+  }
   // delete _input;
-  delete _output;
-  delete _weight;
-  delete _bias;
-  delete _parGrads;
-  delete _parGrads_w;
-  delete _parGrads_b;
+
+  // delete _parGrads;
+  // delete _parGrads_w;
+  // delete _parGrads_b;
 }
 
 /*-------------------------relu layer-------------------------*/
@@ -263,6 +340,79 @@ sigmoid::~sigmoid() {
 
 
 
+
+/*-------------------------conv2d layer-------------------------*/
+void conv2d_layer::_init(int64 batch, int64 in_height, int64 in_width, 
+          int64 filter_height, int64 filter_width, int64 in_channels,
+          int64 out_channels, int64 stride, bool GPU) {
+  _GPU = GPU;
+  if(_GPU) {
+
+  }
+  else {
+
+  }
+
+}
+
+conv2d_layer::conv2d_layer() {
+
+}
+
+conv2d_layer::conv2d_layer(int64 batch, int64 in_height, int64 in_width, 
+          int64 filter_height, int64 filter_width, int64 in_channels,
+          int64 out_channels, int64 stride) {
+  
+}
+
+conv2d_layer::conv2d_layer(int64 batch, int64 in_height, int64 in_width, 
+          int64 filter_height, int64 filter_width, int64 in_channels,
+          int64 out_channels, int64 stride, bool GPU)  {
+  
+}
+
+void conv2d_layer::loadW(const char* path)  {
+  _GPU = GPU;
+  if(_GPU) {
+
+  }
+  else {
+
+  }
+}
+
+
+
+void conv2d_layer::feed(Matrix* input)  {
+
+}
+
+void conv2d_layer::feed(cudaMatrix* input)  {
+
+}
+
+void conv2d_layer::forward(PASS_TYPE pass_type) {
+  _GPU = GPU;
+  if(_GPU) {
+
+  }
+  else {
+
+  }
+}
+
+Matrix* conv2d_layer::getFprop() const  {
+  
+}
+
+conv2d_layer::~conv2d_layer()  {
+  
+}
+
+
+
+
+
 /*-------------------------softmax layer-------------------------*/
 
 void softmax_layer::_init(int64 input_s, int64 bs){
@@ -323,7 +473,7 @@ softmax_layer::~softmax_layer() {
 //   assert(input_s >= 0);
 //   _logit = new Matrix(1, input_s);
 //   _label = new Matrix(1, input_s);
-//   _output = new double;
+//   _output = new float;
 //   _parGrads = new Matrix(1, input_s);
 // }
 
@@ -347,7 +497,7 @@ softmax_layer::~softmax_layer() {
 //   Matrix tmp_log2(*_logit);
 //   Matrix tmp_dot1(*_logit);
 //   Matrix tmp_dot2(*_logit);
-//   double tmp_reduce_sum1, tmp_reduce_sum2;
+//   float tmp_reduce_sum1, tmp_reduce_sum2;
 //   Matrix tmp_subtract1(*_logit);
 //   Matrix tmp_subtract2(*_logit);
 //   Matrix tmp_sum(*_logit);
@@ -360,7 +510,7 @@ softmax_layer::~softmax_layer() {
 //   tmp_subtract2.log(tmp_log2);
 //   tmp_subtract1.dot(tmp_log2, tmp_dot2);
 //   tmp_dot2.reduce_sum(tmp_reduce_sum2);
-//   *_output = -(tmp_reduce_sum1 + tmp_reduce_sum2) / double(N);
+//   *_output = -(tmp_reduce_sum1 + tmp_reduce_sum2) / float(N);
 // }
 
 // // delta(ce)/delta(l) = logit - label
@@ -368,7 +518,7 @@ softmax_layer::~softmax_layer() {
 //   _logit -> subtract(*_label, *_parGrads);
 // }
 
-// double* cross_entropy::getFprop() const {
+// float* cross_entropy::getFprop() const {
 //   return _output;
 // }
 

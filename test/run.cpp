@@ -4,12 +4,12 @@
 using namespace std;
 
 int main(void) {
-  double * x = new double[2];
-  double * y = new double[2];
-  double tr_x[] = {0,1,1,2,3,5,5,3,2,1,1,3,3,4};
-  double tr_y[] = {1,0,1,0,1,0,0,1,0,1,1,0,0,1};
-  double te_x[] = {0,1,2,1};
-  double te_y[] = {1,0,0,1};
+  float * x = new float[2];
+  float * y = new float[2];
+  float tr_x[] = {0,1,1,2,3,5,5,3,2,1,1,3,3,4};
+  float tr_y[] = {1,0,1,0,1,0,0,1,0,1,1,0,0,1};
+  float te_x[] = {0,1,2,1};
+  float te_y[] = {1,0,0,1};
 
 
   int epoch = 100;
@@ -26,8 +26,8 @@ int main(void) {
   for(int j = 0; j < epoch; j++){
     for(int i = 0; i < 7; i++){
       //forward
-      memcpy(x, tr_x +i*2, 2*sizeof(double));
-      memcpy(y, tr_y +i*2, 2*sizeof(double));
+      memcpy(x, tr_x +i*2, 2*sizeof(float));
+      memcpy(y, tr_y +i*2, 2*sizeof(float));
       // cout <<"x:"<< x[0] << " "<< x[1] << endl;
       // cout <<"y:"<< y[0] << " "<< y[1] << endl;
       input_layer -> feed(x);
@@ -81,7 +81,7 @@ int main(void) {
 
       cost -> feed(sfmx -> getFprop(), label_layer -> getFprop());
       cost -> forward(PASS_TRAIN);
-      double* ce = cost->getFprop();
+      float* ce = cost->getFprop();
       cout << "cost: "<< *ce << endl;
       cost -> backward(PASS_TRAIN);
 
@@ -124,8 +124,8 @@ int main(void) {
     cout <<"------------------------------------"<< endl << endl;
   }
   for(int i=0; i<2; i++) {
-    memcpy(x, te_x + i*2, 2*sizeof(double));
-    memcpy(y, te_y + i*2, 2*sizeof(double));
+    memcpy(x, te_x + i*2, 2*sizeof(float));
+    memcpy(y, te_y + i*2, 2*sizeof(float));
     input_layer -> feed(x);
     label_layer -> feed(y);
     l1->feed(input_layer->getFprop());

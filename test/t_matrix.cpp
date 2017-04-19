@@ -4,10 +4,10 @@
 using namespace std;
 
 int main(void){
-	double * setA = new double[10];
-	double * setB = new double[10];
-	double * setC = new double[9];
-	double * setD = new double[9];
+	float * setA = new float[10];
+	float * setB = new float[10];
+	float * setC = new float[9];
+	float * setD = new float[9];
 	for (int i=0; i<10; i++)
 		setA[i] = i;
 	for (int i=0; i<5; i++)
@@ -26,7 +26,7 @@ int main(void){
 	Matrix * C = new Matrix(setC, 2 ,5);
 	Matrix * D = new Matrix(setD, 3 ,3);
 	Matrix * BB = new Matrix(setD, 1 ,5);
-	// double * reduce_sum = new double;
+	// float * reduce_sum = new float;
 	// A.reluGrads(B, 0, C);
 	// A.add(A, 0.1);
 	// A.reduce_sum(*reduce_sum);

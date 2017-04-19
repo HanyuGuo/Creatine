@@ -5,15 +5,15 @@
 using namespace std;
 
 int main(void) {
-  double * x = new double[10*784];
-  double * y = new double[10*10];
+  float * x = new float[10*784];
+  float * y = new float[10*10];
 
-  double * test_x = new double[10000*784];
-  double * test_y = new double[10000*10];
+  float * test_x = new float[10000*784];
+  float * test_y = new float[10000*10];
   load("../data/mnist_images.txt", test_x);
   load("../data/mnist_labels.txt", test_y);
-  double * argmax_label = new double[10];
-  double * argmax_pred = new double[10];
+  float * argmax_label = new float[10];
+  float * argmax_pred = new float[10];
   //create layers
   int hidden = 200;
   int bs = 10;
@@ -30,8 +30,8 @@ int main(void) {
 
   int correct = 0;
   for(int i=0; i<1000; i++) {
-    memcpy(x, test_x + bs*i*784, bs*784*sizeof(double));
-    memcpy(y, test_y + bs*i*10, bs*10*sizeof(double));
+    memcpy(x, test_x + bs*i*784, bs*784*sizeof(float));
+    memcpy(y, test_y + bs*i*10, bs*10*sizeof(float));
     input_layer -> feed(x);
     label_layer -> feed(y);
     l1->feed(input_layer->getFprop());

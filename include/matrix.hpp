@@ -16,32 +16,34 @@ typedef long long int int64;
 
 class Matrix {
 private:
-  double* _data;
+  float* _data;
   int64 _numRows, _numCols;
   int64 _numElements;
   CBLAS_TRANSPOSE _trans;
-  void _init(double* data, int64 numRows, int64 numCols, bool transpose);
-  void _elemWiseLoop(double (*func)(double), Matrix& target);
-  void _elemWiseLoop(double (*func)(double), const double scale, Matrix& target);
-  void _elemWiseLoop(double (*func)(double, double), const double scale, Matrix& target);
-  void _elemWiseLoop(double (*func)(double, double), const Matrix &m, Matrix& target);
-  void _elemWiseLoop(double (*func)(double, double), const Matrix &m, const double scale, Matrix& target);
-  void _elemWiseLoop(double (*func)(double, double, double), const Matrix &m, const double scale, Matrix &target);
+  void _init(float* data, int64 numRows, int64 numCols, bool transpose);
+  void _elemWiseLoop(float (*func)(float), Matrix& target);
+  void _elemWiseLoop(float (*func)(float), const float scale, Matrix& target);
+  void _elemWiseLoop(float (*func)(float, float), const float scale, Matrix& target);
+  void _elemWiseLoop(float (*func)(float, float), const Matrix &m, Matrix& target);
+  void _elemWiseLoop(float (*func)(float, float), const Matrix &m, const float scale, Matrix& target);
+  void _elemWiseLoop(float (*func)(float, float, float), const Matrix &m, const float scale, Matrix &target);
 public:
   Matrix();
   Matrix(int64 numRows, int64 numCols);
   Matrix(const Matrix &like);
-  Matrix(double* data, int64 numRows, int64 numCols);
+  Matrix(float* data, int64 numRows, int64 numCols);
 
-  inline double& getCell(int64 i, int64 j) const {
+
+
+  inline float& getCell(int64 i, int64 j) const {
     assert(i >= 0 && i < _numRows);
     assert(j >= 0 && j < _numCols);
     return _data[i * _numCols + j];
   }
-  double& operator()(int64 i, int64 j) const {
+  float& operator()(int64 i, int64 j) const {
     return getCell(i, j);
   }
-  inline double* getData() const {
+  inline float* getData() const {
     return _data;
   }
   inline int64 getNumRows() const {
@@ -62,39 +64,39 @@ public:
   inline bool istrans() const {
     return _trans == CblasTrans;
   }
-  void assign(double* data);
+  void assign(float* data);
   void copyTo(Matrix &m);
   void T();
   void add(const Matrix &m);
-  void add(const Matrix &m, const double scale);
-  void add(const Matrix &m, const double scale, Matrix &target);  //basic addition
-  void add(const double scale, Matrix &target);
+  void add(const Matrix &m, const float scale);
+  void add(const Matrix &m, const float scale, Matrix &target);  //basic addition
+  void add(const float scale, Matrix &target);
   void add(const Matrix &m, Matrix &target);
   void subtract(const Matrix &m, Matrix &target);
-  void subtract(const double scale, Matrix &target);
-  void subtracted(const double scale, Matrix &target);
-  void Product(const Matrix &a, const Matrix &b, double scaleAB, bool aT, bool bT, Matrix &c);
-  void dot(const double scale, Matrix &target);
-  void dot(const Matrix &m, const double scale, Matrix &target);
+  void subtract(const float scale, Matrix &target);
+  void subtracted(const float scale, Matrix &target);
+  void Product(const Matrix &a, const Matrix &b, float scaleAB, bool aT, bool bT, Matrix &c);
+  void dot(const float scale, Matrix &target);
+  void dot(const Matrix &m, const float scale, Matrix &target);
   void dot(const Matrix &m, Matrix &target);
-  void rightMult(const Matrix &m, const double scale, Matrix &target);
+  void rightMult(const Matrix &m, const float scale, Matrix &target);
   void rightMult(const Matrix &m, Matrix &target);
-  void rightMult(const Matrix &m, const double scale, Matrix &target, bool thisT, bool mT);
+  void rightMult(const Matrix &m, const float scale, Matrix &target, bool thisT, bool mT);
   void rightMult(const Matrix &m, Matrix &target, bool thisT, bool mT);
   void rightMultPlus(const Matrix &m, const Matrix &p, Matrix &target);
-  void eltwiseDivideByScale(const double scale, Matrix &target);
+  void eltwiseDivideByScale(const float scale, Matrix &target);
   void eltwiseDivide(const Matrix &m, Matrix &target);
-  void eltwiseScaleDivideByThis(const double scale, Matrix &target);
+  void eltwiseScaleDivideByThis(const float scale, Matrix &target);
   void exp(Matrix &target);
-  void exp(const double scale, Matrix &target);
+  void exp(const float scale, Matrix &target);
   void ln(Matrix &target);
   void log(Matrix &target);
   void reduce_sum(Matrix &sum); // only do all to one currently
-  double max() const;
-  void max(const double scale, Matrix &target);
+  float max() const;
+  void max(const float scale, Matrix &target);
   void reluGrads(const Matrix &m, Matrix &target);
   void sigmoidGrads(const Matrix &m,  Matrix &target);
-  void argmax(double * result);
+  void argmax(float * result);
 
   ~Matrix();
 };

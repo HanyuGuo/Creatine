@@ -2,7 +2,7 @@
 #include "../include/matrix.hpp"
 
 
-void load(const char* path, double* weights) {
+void load(const char* path, float* weights) {
   using namespace std;
   ifstream myfile;
   string infile;
@@ -17,7 +17,7 @@ void load(const char* path, double* weights) {
 }
 
 
-int Equal(const double * a,const double * b, int len) {
+int Equal(const float * a,const float * b, int len) {
   int correct = 0;
   for (int j = 0; j < len; j++) {
     if(a[j] == b[j])
@@ -26,9 +26,9 @@ int Equal(const double * a,const double * b, int len) {
   return correct;
 }
 
-void argmax(const double* input, double* result, int w, int h) {
+void argmax(const float* input, float* result, int w, int h) {
   for (int64 i=0; i < h; i++) {
-    double temp = input[i*w];
+    float temp = input[i*w];
     result[i] = 0;
     for (int64 j=1; j < w; j++) {
       if (temp < input[i*w+j]) {

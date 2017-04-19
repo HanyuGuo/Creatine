@@ -7,7 +7,7 @@
 
 
 enum PASS_TYPE {PASS_TRAIN, PASS_TEST, PASS_GC};
-void load(const char* path, double* weights);
-int Equal(const double * a,const double * b, int len);
-void argmax(const double* input, double* result);
+void load(const char* path, float* weights);
+int Equal(const float * a,const float * b, int len);
+void argmax(const float* input, float* result);
 #endif

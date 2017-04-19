@@ -6,46 +6,46 @@
 #include <algorithm>
 
 
-inline double _identity(double x) {
+inline float _identity(float x) {
   return x;
 }
 
-inline double _add(double x, double y) {
+inline float _add(float x, float y) {
   return x + y;
 }
 
 
-inline double _addScaleY(double x, double y, double scale) {
+inline float _addScaleY(float x, float y, float scale) {
   return x + y * scale;
 }
 
-inline double _mul(double x, double y) {
+inline float _mul(float x, float y) {
 	return x * y;
 }
 
-inline double _divide(double x, double y) {
+inline float _divide(float x, float y) {
   return x / y;
 }
 
-inline double _divided(double x, double y) {
+inline float _divided(float x, float y) {
   return y / x;
 }
 
 
-inline double _exp(double x) {
+inline float _exp(float x) {
   return exp(x);
 }
 
-inline double _ln(double x) {
+inline float _ln(float x) {
   return log(x + 1e-5);
 }
 
 
-inline double _log(double x) {
+inline float _log(float x) {
   return log2(x + 1e-5);
 }
 
-inline double _max(double x, double y) {
+inline float _max(float x, float y) {
   return x>=y ? x : y;
 }
 

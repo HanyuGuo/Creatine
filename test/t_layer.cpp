@@ -4,14 +4,14 @@
 using namespace std;
 
 int main(void) {
-	double * input = new double[3];
+	float * input = new float[3];
 	for (int i=0; i<3; i++)
 		input[i] = 0.33;
 	ip_layer * input_layer = new ip_layer(3);
 	input_layer -> feed(input);
 	// input_layer.peek();
 
-	double * label = new double[3];
+	float * label = new float[3];
 	for (int i=0; i<3; i++)
 		label[i] = 0.33;
 	ip_layer * label_layer = new ip_layer(3);
@@ -50,7 +50,7 @@ int main(void) {
 	cross_entropy * cost  = new cross_entropy(3);
 	cost -> feed(l2 -> getFprop(), label_layer -> getFprop());
 	cost -> forward(PASS_TRAIN);
-	double* ce = cost->getFprop();
+	float* ce = cost->getFprop();
 	cout << *ce;
 	cout << "\nPass" << endl;
 

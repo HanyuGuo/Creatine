@@ -13,3 +13,11 @@ g++ -Wall -std=c++11 -o run ../src/matrix.cpp  ../src/utils.cpp ../src/layers/la
 t_load.cpp
 
 g++ -Wall -std=c++11 -o load ../src/utils.cpp   t_load.cpp
+
+run_gpu.cpp
+
+nvcc -Wall --std=c++11 -o run ../src/matrix.cpp  ../src/utils.cpp ../src/layers/layer.cpp ../src/cudaKernels.cu ../src/cudaMatrix.cpp run_run_gpu.cpp -lcblas
+
+t_conv.cpp
+
+g++ -Wall -std=c++11 -o run ../src/convMatrix.cpp   t_conv.cpp
