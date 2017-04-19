@@ -27,10 +27,10 @@ int Equal(const float * a,const float * b, int len) {
 }
 
 void argmax(const float* input, float* result, int w, int h) {
-  for (int64 i=0; i < h; i++) {
+  for (int i=0; i < h; i++) {
     float temp = input[i*w];
     result[i] = 0;
-    for (int64 j=1; j < w; j++) {
+    for (int j=1; j < w; j++) {
       if (temp < input[i*w+j]) {
         temp = input[i*w+j];
         result[i] = j;

@@ -59,3 +59,14 @@ __global__ void axpy_kernel(float *a, float *b, float scaleA,int lda,int ldy, in
       //  printf("%.2f ",y[id*ldy]);
   }
 }
+
+__global__ void add_mat_vec_kernel(float *a, float *b, int nr, int nc,float scale, float *y){
+    int idx = blockIdx.x*blockDim.x+threadIdx.x;
+    int idy = blockIdx.y*blockDim.y+threadIdx.y;
+    if (idx < nc && idy < nr) {
+        y[idy*nr+idx] = a[idy*nr+idx]+b[idx];
+    }
+
+
+
+}

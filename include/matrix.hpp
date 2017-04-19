@@ -12,15 +12,14 @@ extern "C" {
   #include <cblas.h>
 }
 
-typedef long long int int64;
 
 class Matrix {
 private:
   float* _data;
-  int64 _numRows, _numCols;
-  int64 _numElements;
+  int _numRows, _numCols;
+  int _numElements;
   CBLAS_TRANSPOSE _trans;
-  void _init(float* data, int64 numRows, int64 numCols, bool transpose);
+  void _init(float* data, int numRows, int numCols, bool transpose);
   void _elemWiseLoop(float (*func)(float), Matrix& target);
   void _elemWiseLoop(float (*func)(float), const float scale, Matrix& target);
   void _elemWiseLoop(float (*func)(float, float), const float scale, Matrix& target);
@@ -29,30 +28,30 @@ private:
   void _elemWiseLoop(float (*func)(float, float, float), const Matrix &m, const float scale, Matrix &target);
 public:
   Matrix();
-  Matrix(int64 numRows, int64 numCols);
+  Matrix(int numRows, int numCols);
   Matrix(const Matrix &like);
-  Matrix(float* data, int64 numRows, int64 numCols);
+  Matrix(float* data, int numRows, int numCols);
 
 
 
-  inline float& getCell(int64 i, int64 j) const {
+  inline float& getCell(int i, int j) const {
     assert(i >= 0 && i < _numRows);
     assert(j >= 0 && j < _numCols);
     return _data[i * _numCols + j];
   }
-  float& operator()(int64 i, int64 j) const {
+  float& operator()(int i, int j) const {
     return getCell(i, j);
   }
   inline float* getData() const {
     return _data;
   }
-  inline int64 getNumRows() const {
+  inline int getNumRows() const {
     return _numRows;
   }
-  inline int64 getNumCols() const {
+  inline int getNumCols() const {
     return _numCols;
   }
-  inline int64 getNumElements() const {
+  inline int getNumElements() const {
     return _numElements;
   }
   inline bool sameDim(const Matrix &m) const {

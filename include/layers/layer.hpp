@@ -8,7 +8,6 @@
 #include <map>
 #include <assert.h>
 #include <iostream>
-typedef long long int int64;
 
 
 class ip_layer {
@@ -16,14 +15,14 @@ protected:
   Matrix* _input;
   Matrix* _output;   // a pointer so that could be used for later layers
   Matrix* _parGrads; // partial gradients
-  void _init(int64 bs, int64 input_s, bool GPU);
+  void _init(int bs, int input_s, bool GPU);
   cudaMatrix* _cudaInput;
   cudaMatrix* _cudaOutput;
   bool _GPU;
 public:
   ip_layer();
-  ip_layer(int64 bs, int64 input_s);
-  ip_layer(int64 bs, int64 input_s, bool GPU);
+  ip_layer(int bs, int input_s);
+  ip_layer(int bs, int input_s, bool GPU);
   void feed(float* input, int elems);
   void forward(PASS_TYPE pass_type);
   void backward(PASS_TYPE pass_type);
@@ -35,9 +34,9 @@ public:
 
 class fc_layer {
 protected:
-  int64 _bs;
-  int64 _input_s;
-  int64 _output_s;
+  int _bs;
+  int _input_s;
+  int _output_s;
   Matrix* _input;
   Matrix* _output;   // a pointer so that could be used for later layers
   float* weight_init;
@@ -54,12 +53,12 @@ protected:
   cudaMatrix* _cudaBias;
   bool _GPU;
 
-  void _init(int64 bs, int64 input_s, int64 output_s, bool biasThis, bool GPU);
+  void _init(int bs, int input_s, int output_s, bool biasThis, bool GPU);
 public:
   fc_layer();
-  fc_layer(int64 bs, int64 input_s, int64 output_s);
-  fc_layer(int64 bs, int64 input_s, int64 output_s, bool biasThis);
-  fc_layer(int64 bs, int64 input_s, int64 output_s, bool biasThis, bool GPU);
+  fc_layer(int bs, int input_s, int output_s);
+  fc_layer(int bs, int input_s, int output_s, bool biasThis);
+  fc_layer(int bs, int input_s, int output_s, bool biasThis, bool GPU);
   void loadW(const char* path);
   void loadB(const char* path);
   void feed(Matrix* input);
@@ -83,10 +82,10 @@ protected:
   Matrix* _prev_parGrads;
   Matrix* _tmp_exp;
   Matrix* _tmp_sum;
-  void _init(int64 input_s, int64 bs);
+  void _init(int input_s, int bs);
 public:
   relu_layer();
-  relu_layer(int64 input_s, int64 bs);
+  relu_layer(int input_s, int bs);
   void feed(Matrix* input);
   void feedGrad(Matrix* prev_parGrads);
   void forward(PASS_TYPE pass_type);
@@ -105,11 +104,17 @@ protected:
   Matrix* _prev_parGrads;
   Matrix* _tmp_exp;
   Matrix* _tmp_sum;
-  void _init(int64 input_s, int64 bs);
+  cudaMatrix* _cudaInput;
+  cudaMatrix* _cudaOutput;   // a pointer so that could be used for later layers
+  cudaMatrix* _cudaWeight;
+  cudaMatrix* _cudaBias;
+  bool _GPU;
+  void _init(int input_s, int bs, bool GPU);
 public:
   sigmoid();
-  sigmoid(int64 input_s, int64 bs);
+  sigmoid(int input_s, int bs, bool GPU);
   void feed(Matrix* input);
+  void feed(cudaMatrix* input);
   void feedGrad(Matrix* prev_parGrads);
   void forward(PASS_TYPE pass_type);
   void backward(PASS_TYPE pass_type);
@@ -119,43 +124,43 @@ public:
 };
 
 
-class conv2d_layer {
-protected:
-  int64 _batch;
-  int64 _in_height;
-  int64 _in_width;
-  int64 _filter_height;
-  int64 _filter_width;
-  int64 _in_channels;
-  int64 _out_channels;
-  int64 _stride;
-  float* weight_init;
-  Matrix* _input;
-  Matrix* _weight;
-  Matrix* _output;
-  cudaMatrix* _cudaInput;
-  cudaMatrix* _cudaOutput;   // a pointer so that could be used for later layers
-  cudaMatrix* _cudaWeight;
-  bool _GPU;
+// class conv2d_layer {
+// protected:
+//   int _batch;
+//   int _in_height;
+//   int _in_width;
+//   int _filter_height;
+//   int _filter_width;
+//   int _in_channels;
+//   int _out_channels;
+//   int _stride;
+//   float* weight_init;
+//   Matrix* _input;
+//   Matrix* _weight;
+//   Matrix* _output;
+//   cudaMatrix* _cudaInput;
+//   cudaMatrix* _cudaOutput;   // a pointer so that could be used for later layers
+//   cudaMatrix* _cudaWeight;
+//   bool _GPU;
 
-  void _init(int64 batch, int64 in_height, int64 in_width, 
-            int64 filter_height, int64 filter_width, int64 in_channels,
-            int64 out_channels, int64 stride, bool GPU);
-public:
-  conv2d_layer();
-  conv2d_layer(int64 batch, int64 in_height, int64 in_width, 
-            int64 filter_height, int64 filter_width, int64 in_channels,
-            int64 out_channels, int64 stride);
-  conv2d_layer(int64 batch, int64 in_height, int64 in_width, 
-            int64 filter_height, int64 filter_width, int64 in_channels,
-            int64 out_channels, int64 stride, bool GPU);
-  void loadW(const char* path);
-  void feed(Matrix* input);
-  void feed(cudaMatrix* input);
-  void forward(PASS_TYPE pass_type);
-  Matrix* getFprop() const;
-  ~conv2d_layer();
-};
+//   void _init(int batch, int in_height, int in_width, 
+//             int filter_height, int filter_width, int in_channels,
+//             int out_channels, int stride, bool GPU);
+// public:
+//   conv2d_layer();
+//   conv2d_layer(int batch, int in_height, int in_width, 
+//             int filter_height, int filter_width, int in_channels,
+//             int out_channels, int stride);
+//   conv2d_layer(int batch, int in_height, int in_width, 
+//             int filter_height, int filter_width, int in_channels,
+//             int out_channels, int stride, bool GPU);
+//   void loadW(const char* path);
+//   void feed(Matrix* input);
+//   void feed(cudaMatrix* input);
+//   void forward(PASS_TYPE pass_type);
+//   Matrix* getFprop() const;
+//   ~conv2d_layer();
+// };
 
 
 
@@ -167,10 +172,10 @@ protected:
   Matrix* _parGrads; // partial gradients
   Matrix * _tmp_exp;
   Matrix * _tmp_exp_sum;
-  void _init(int64 input_s, int64 bs);
+  void _init(int input_s, int bs);
 public:
   softmax_layer();
-  softmax_layer(int64 input_s, int64 bs);
+  softmax_layer(int input_s, int bs);
   void feed(Matrix* input);
   void forward(PASS_TYPE pass_type);
   void backward(PASS_TYPE pass_type);
@@ -185,10 +190,10 @@ public:
 //   Matrix* _label;
 //   float* _output;   // a pointer so that could be used for later layers
 //   Matrix* _parGrads; // partial gradients
-//   void _init(int64 input_s);
+//   void _init(int input_s);
 // public:
 //   cross_entropy();
-//   cross_entropy(int64 input_s);
+//   cross_entropy(int input_s);
 //   void feed(Matrix* logit, Matrix* label);
 //   void forward(PASS_TYPE pass_type);
 //   void backward(PASS_TYPE pass_type);

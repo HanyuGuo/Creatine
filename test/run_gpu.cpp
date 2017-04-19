@@ -11,17 +11,17 @@ int main(void) {
 
   float * test_x = new float[10000*784];
   float * test_y = new float[10000*10];
-  // load("../data/mnist_images.txt", test_x);
-  // load("../data/mnist_labels.txt", test_y);
+  load("../data/mnist_images.txt", test_x);
+  load("../data/mnist_labels.txt", test_y);
   // float * argmax_label = new float[10];
   // float * argmax_pred = new float[10];
   //create layers
   int hidden = 200;
-  int bs = 1;
+  int bs = 10;
   ip_layer * input_layer = new ip_layer(bs,784, GPU);
   ip_layer * label_layer = new ip_layer(bs,10, GPU);
-  fc_layer * l1 = new fc_layer(bs,784,hidden,true, true);
-  // sigmoid * sig = new sigmoid(hidden,10);
+  fc_layer * l1 = new fc_layer(bs,784,hidden,true, GPU);
+  sigmoid * sig = new sigmoid(bs,hidden, GPU);
   // fc_layer * l2 = new fc_layer(hidden,10,10);
   // softmax_layer * sfmx = new softmax_layer(10,10);
   // l1 -> loadW("../data/layer_1_weight.txt");
@@ -36,10 +36,10 @@ int main(void) {
     input_layer -> feed(x, bs*784);
     label_layer -> feed(y, bs*10);
     l1->feed(input_layer->getFprop(GPU));
-    // l1->forward(PASS_TRAIN);
+    l1->forward(PASS_TRAIN);
 
-    // sig->feed(l1->getFprop());
-    // sig->forward(PASS_TRAIN);
+    sig->feed(l1->getFprop());
+    sig->forward(PASS_TRAIN);
 
     // l2->feed(sig->getFprop());
     // l2->forward(PASS_TRAIN);
@@ -63,7 +63,7 @@ int main(void) {
   delete [] test_x;
   delete [] test_y;
   delete input_layer;
-  delete label_layer;
+  // delete label_layer;
   // delete l1;
   // delete l2;
   // delete sfmx;

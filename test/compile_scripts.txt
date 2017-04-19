@@ -16,7 +16,10 @@ g++ -Wall -std=c++11 -o load ../src/utils.cpp   t_load.cpp
 
 run_gpu.cpp
 
-nvcc -Wall --std=c++11 -o run ../src/matrix.cpp  ../src/utils.cpp ../src/layers/layer.cpp ../src/cudaKernels.cu ../src/cudaMatrix.cpp run_run_gpu.cpp -lcblas
+export PATH=/usr/local/cuda-8.0/bin:$PATH
+
+nvcc --std=c++11 -o run ../src/matrix.cpp  ../src/utils.cpp ../src/layers/layer.cpp ../src/cudaKernels.cu ../src/cudaMatrix.cu run_gpu.cpp -lcudart -lcuda -lcublas -lcblas
+
 
 t_conv.cpp
 
