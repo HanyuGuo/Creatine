@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <cublas_v2.h>
 #include "../include/cudaMatrix.hpp"
+#include "../include/Activations.cuh"
 
 
 #define GPU
@@ -308,4 +309,25 @@ void cudaMatrix::cudaAddv(const cudaMatrix &b, float scale, cudaMatrix &c) {
     if (err != cudaSuccess) {
       printf("can't add matrices and vectors.\n");
     }
+}
+
+
+void cudaMatrix::calc_activation_gpu(Activation a, cudaMatrix &tgt) {
+   activations_on_gpu(devData,numElems,a,tgt.getDevData());
+}
+
+
+void cudaMatrix::softmax_gpu(cudaMatrix &tgt){
+   cudaError_t err;
+   int block_x = 4;
+   int block_y = block_x;
+   int grid_x = numElems/block_x;
+   int grid_y = numElems/block_y;
+   dim3 grid(grid_x, grid_y);
+   dim3 block(block_x, block_y);
+   softmax_kernel <<< grid,block >>>(tgt.getDevData(), numRows,numCols);
+   err = cudaGetLastError();
+   if (err != cudaSuccess) {
+     printf("Can't softmax...\n");
+   }
 }

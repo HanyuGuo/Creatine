@@ -1,5 +1,5 @@
-all:cudaMatrix.o test_cudaMat.o cudaKernel.o 
-	nvcc cudaMatrix.o test_cudaMat.o cudaKernel.o -o cudaTest -lcudart -lcuda -lcublas
+all:cudaMatrix.o test_cudaMat.o cudaKernel.o Activations.o
+	nvcc cudaMatrix.o test_cudaMat.o cudaKernel.o Activations.o -o cudaTest -lcudart -lcuda -lcublas
 
 cudaMatrix.o: src/cudaMatrix.cpp
 	nvcc -arch=sm_35 -x cu -I. -dc $< -o $@

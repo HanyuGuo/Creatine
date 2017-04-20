@@ -94,18 +94,18 @@ __device__ float select_activation(float x, Activation a) {
 }
 
 
-__global__ void launch_activations_on_gpu(float *x,int numElems,Activation a){
+__global__ void launch_activations_on_gpu(float *x,int numElems,Activation a, float *y){
     int blockId = blockIdx.x + gridDim.x*blockIdx.y;
     int i = blockId*blockDim.x + threadIdx.x;
     if (i<numElems) {
-      x[i] = select_activation(x[i],a);
-      printf("i:%d, %.2f \n",i,x[i]);
+      y[i] = select_activation(x[i],a);
+      printf("i:%d, %.2f \n",i,y[i]);
     }
 
 
 }
 
-void activations_on_gpu(float *x ,int numElems, Activation a){
+void activations_on_gpu(float *x, int numElems, Activation a, float *y_data){
   cudaError_t err;
   // alg from darknet
   int block = 512;
@@ -117,7 +117,7 @@ void activations_on_gpu(float *x ,int numElems, Activation a){
   // }
   dim3 grid(x_direction,y,1);
   printf("Launcing the requested kernels...\n");
-  launch_activations_on_gpu<<< grid, block >>> (x,numElems,a);
+  launch_activations_on_gpu<<< grid, block >>> (x,numElems,a,y_data);
   err = cudaGetLastError();
   if (err != cudaSuccess) {
     printf("Can't launch the activation kernels.\n");

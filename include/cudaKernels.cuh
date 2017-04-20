@@ -12,4 +12,5 @@ __global__ void powgpu_kernel(float *a, int n, int scale);
 __global__ void expgpu_kernel(float *a, int n);
 __global__ void axpy_kernel(float *a, float *b, float scaleA, int lda, int ldy, int n,float *y);
 __global__ void add_mat_vec_kernel(float *a, float *b, int nr, int nc, float scale, float *y);
+__global__ void softmax_kernel(float *x, int nr, int nc);
 #endif

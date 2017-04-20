@@ -9,7 +9,7 @@ __global__ void launch_gradients_on_gpu(float *x, Activation a, int numElems, fl
 __device__ float select_activation(float x, Activation a);
 __device__ void select_gradient(float x, Activation a);
 
-void activations_on_gpu(float *x, int numElems,Activation a);
+void activations_on_gpu(float *x, int numElems,Activation a, float *y_data);
 void gradient_on_gpu(float *x, int numElems, Activation a, float *delta);
 
 

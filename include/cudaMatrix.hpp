@@ -4,6 +4,7 @@
 #include <vector>
 #include<algorithm>
 #include "../include/cudaKernels.cuh"
+#include "../include/Activations.cuh"
 
 class cudaMatrix {
 private:
@@ -48,6 +49,8 @@ public:
   void axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy, cudaMatrix &tgt); // perform axpy by striding the vector in a column major format
   void axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy);
   void gemm_ongpu(bool tA, bool tB, const cudaMatrix &b, float scaleA, float scaleB, cudaMatrix &tgt); // Sgemm on GPU.
+  void calc_activation_gpu(Activation a, cudaMatrix &tgt);
+  void softmax_gpu(cudaMatrix &tgt);
 };
 
 
