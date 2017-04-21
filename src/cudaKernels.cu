@@ -66,15 +66,13 @@ __global__ void add_mat_vec_kernel(float *a, float *b, int nr, int nc,float scal
     if (idx < nc && idy < nr) {
         y[idy*nr+idx] = a[idy*nr+idx]+b[idx];
     }
+
 }
 
-
-__global__ void softmax_kernel(float *x, int nr, int nc){
-  int idx = blockIdx.x*blockDim.x+threadIdx.x;
-  int idy = blockIdx.y*blockDim.y+threadIdx.y;
-  float sum = 0;
-  if (idx < nc && idy < nr) {
-     sum += x[idx*nr+idy]; // sum of all cols.
+__global__ void DivideByScalar(float *x, float *y, float scale, int n){
+  int idx = blockDim.x*blockIdx.x + threadIdx.x;
+  if (idx < n) {
+    y[idx] = x[idx]/scale;
   }
-  x[idy*nr+idy] /= sum;
+
 }

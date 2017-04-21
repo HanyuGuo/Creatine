@@ -3,15 +3,13 @@
 #include <cuda.h>
 #include <stdio.h>
 #include <cublas_v2.h>
-#include "../include/cudaMatrix.hpp"
-#include "../include/Activations.cuh"
+#include "../include/cudaMatrix.cuh"
 
 
 #define GPU
 
 
 void cudaMatrix::_init(float *data, int numrows, int numcols){
-
   devData = NULL;
   numRows = numrows;
   numCols = numcols;
@@ -43,15 +41,7 @@ void cudaMatrix::_init(float *data, int numrows, int numcols){
 }
 
 cudaMatrix::cudaMatrix(int numrows, int numcols){
-  cudaError_t err;
   _init(NULL,numrows,numcols);
-  if (numRows*numCols > 0) {
-    cudaMalloc((void**)&devData, numElems*sizeof(float));
-    err = cudaGetLastError();
-    if (err != cudaSuccess) {
-      std::cout << "Couldn't allocate memory\n";
-    }
-  }
 }
 
 
@@ -79,9 +69,11 @@ cudaMatrix::~cudaMatrix(){
   cudaGetDeviceProperties(&props, 0);
   long max = props.totalGlobalMem;
   gpuid = 0;
+  // std :: cout << "mem " << max << "\n";
   std::vector<cudaDeviceProp> dev_props;
    for (int i = 1; i < num_dev; i++) {
      cudaGetDeviceProperties(&props, i);
+     // std :: cout << "mem " << props.totalGlobalMem << "\n";
      if (max < props.totalGlobalMem) {
        max = props.totalGlobalMem;
        gpuid = i;
@@ -223,14 +215,14 @@ void cudaMatrix::cudaElemWiseDivide(const cudaMatrix &b, cudaMatrix &c) {
 }
 
 
-void cudaMatrix::powgpu(int scale, int n){
+void cudaMatrix::powgpu(int scale){
   cudaError_t err;
   int block_x = 512; // for max threads per block
   int grid_x = (numElems-1)/block_x;
   // int grid_y = (numElems-1)/block_x;
   dim3 grid(grid_x,1,1);
   dim3 block(block_x,1,1);
-  powgpu_kernel <<<grid, block >>>(devData,n,scale);
+  powgpu_kernel <<<grid, block >>>(devData,numElems,scale);
   cudaDeviceSynchronize();
   err = cudaGetLastError();
   if (err != cudaSuccess) {
@@ -241,13 +233,13 @@ void cudaMatrix::powgpu(int scale, int n){
 
 
 
-void cudaMatrix::expgpu(int n) {
+void cudaMatrix::expgpu() {
   cudaError_t err;
   int block_x = 512; // for max threads per block
   int grid_x = (numElems-1)/block_x;
   dim3 grid(grid_x,1,1);
   dim3 block(block_x,1,1);
-  expgpu_kernel <<<grid, block >>>(devData, n);
+  expgpu_kernel <<<grid, block >>>(devData, numElems);
   cudaDeviceSynchronize();
   err = cudaGetLastError();
   if (err != cudaSuccess) {
@@ -297,12 +289,12 @@ void cudaMatrix::gemm_ongpu(bool tA, bool tB, const cudaMatrix &b, float scaleA,
      exit(1);
   }
 
-    cublasSgemm(handle,(tA?CUBLAS_OP_T:CUBLAS_OP_N),(tB?CUBLAS_OP_T:CUBLAS_OP_N),
-                m,n,k,&scaleA,b.getDevData(),b.getNumCols(),devData,numCols,&scaleB,tgt.getDevData(),b.getNumCols());
-    err = cudaGetLastError();
-    if (err != cudaSuccess) {
-      printf("Cannot do Sgemm..\n");
-    }
+  cublasSgemm(handle,(tA?CUBLAS_OP_T:CUBLAS_OP_N),(tB?CUBLAS_OP_T:CUBLAS_OP_N),
+              m,n,k,&scaleA,b.getDevData(),b.getNumCols(),devData,numCols,&scaleB,tgt.getDevData(),b.getNumCols());
+  err = cudaGetLastError();
+  if (err != cudaSuccess) {
+    printf("Cannot do Sgemm..\n");
+  }
 
 }
 void cudaMatrix::cudaAddv(const cudaMatrix &b, float scale, cudaMatrix &c) {
@@ -315,38 +307,7 @@ void cudaMatrix::cudaAddv(const cudaMatrix &b, float scale, cudaMatrix &c) {
     dim3 block(block_dim_x,block_dim_y);
     add_mat_vec_kernel <<<grid, block >>> (devData,b.getDevData(),numRows,numCols,scale,c.getDevData());
     err = cudaGetLastError();
-    printf("err %d",err);
     if (err != cudaSuccess) {
       printf("can't add matrices and vectors.\n");
     }
-}
-
-
-void cudaMatrix::calc_activation_gpu(Activation a, cudaMatrix &tgt) {
-   activations_on_gpu(devData,numElems,a,tgt.getDevData());
-}
-
-
-void cudaMatrix::softmax_gpu(cudaMatrix &tgt){
-   cudaError_t err;
-   int block_x = 3;
-  //  int grid_x = numElems/block_x;
-  //  int grid_y = numElems/block_y;
-  float sum;
-  float *int_res = new float[numRows];
-
-   dim3 grid(1, 1);
-   dim3 block(block_x,1);
-   expgpu_kernel <<<grid,block>>>(devData,numRows);
-   cudaMemcpy(int_res,devData,numRows*sizeof(float),cudaMemcpyDeviceToHost);
-   for (int i = 0; i < numRows; ++i) {
-     sum += int_res[i];
-
-   }
-   printf("Sum: %.2f \n", sum);
-   DivideByScalar<<<grid, block >>>(devData,tgt.getDevData(),sum,numRows);
-   err = cudaGetLastError();
-   if (err != cudaSuccess) {
-     printf("Can't softmax...\n");
-   }
 }

@@ -118,7 +118,11 @@ void GpMatrix::resize(int numRows,int numCols) {
     		}
     	}
         if(numRows*numCols > 0) {
+<<<<<<< HEAD
 			cudaError_t status = cudaMalloc((void**) deviceData, numRows*numCols*sizeof(double));
+=======
+			cudaError_t status = cudaMalloc((void**) deviceData, numRows*numCols*sizeof(float));
+>>>>>>> origin/master
     		if (status != cudaSuccess)
     		{
     		   cuBlaserrcheck("Failed to create new resized array \n");

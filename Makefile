@@ -1,4 +1,4 @@
-all:cudaMatrix.o test_cudaMat.o cudaKernel.o Activations.o
+test:cudaMatrix.o test_cudaMat.o cudaKernel.o Activations.o
 	nvcc cudaMatrix.o test_cudaMat.o cudaKernel.o Activations.o -o cudaTest -lcudart -lcuda -lcublas
 
 cudaMatrix.o: src/cudaMatrix.cpp

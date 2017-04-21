@@ -1,6 +1,7 @@
 #ifndef ACTIVATIONS_CUH_
 #define ACTIVATIONS_CUH_
-
+#include <cuda.h>
+#include <stdio.h> 
 enum Activation{SIGMOID,TANH,RELU,ELU,LINEAR,LOGISTIC};
 
 __global__ void launch_activations_on_gpu(float *x, int numElems, Activation a);

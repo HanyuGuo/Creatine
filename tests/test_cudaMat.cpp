@@ -18,23 +18,27 @@ int main(int argc, char *argv[]) {
   // int numelems = numRows*numCols;
   //std::cout<<"Num Elems:"<<numElems<<"\n";
 
-
-  data1 = new float[numRows1*numCols1];
+  data1 = new float [numRows1];
+  // data1 = new float[numRows1*numCols1];
   data2 = new float[numRows2*numCols2];
   hdata1= new float[numRows1*numCols1];
   // hdata2 = new float[numRows2*numCols2];
   // resdata = new float[numRows1*numCols1];
   for (int i = 0; i < numRows1; ++i) {
-    for (int j = 0; j < numCols1; j++) {
-
-         data1[i*numRows1+j] = i*numRows1 +j;
-        //  data1[ci(i,j,numCols1)] = i;
-        //  std::cout << i << " ";
-        //  data2[i*numRows+j] = i;
-
-    }
-    // std::cout << "\n";
+      data1[i] = i;
+      std::cout << data1[i] << " " << "\n";
   }
+  // for (int i = 0; i < numRows1; ++i) {
+  //   for (int j = 0; j < numCols1; j++) {
+  //
+  //        data1[i*numRows1+j] = i;
+  //       //  data1[ci(i,j,numCols1)] = i;
+  //       //  std::cout << i << " ";
+  //       //  data2[i*numRows+j] = i;
+  //
+  //   }
+  //   // std::cout << "\n";
+  // }
   // for (int i = 0; i < numRows2; ++i) {
   //   for (int j = 0; j < numCols2; j++) {
   //       //  data2[ci(i,j,numCols2)] = i;
@@ -53,7 +57,7 @@ int main(int argc, char *argv[]) {
 
   // cm1.gemm_ongpu(false,false, cm2,1,0,res);
   //  std::cout<<"Setting device data..\n";
-  //  cm1.setDeviceData(data1,numelems);
+  //  cm1.setDeviceData(data1,numRows1*numCols1);
   //  cm2.setDeviceData(data2,numelems);
   //  cm1.gemm_ongpu(false,false,cm2,1,0,res);
   // (*cm1).cudaAddv((*cm2),1,res);
@@ -70,11 +74,7 @@ int main(int argc, char *argv[]) {
   res.getDeviceData(hdata1);
   //
   for (int i = 0; i < numRows1; i++) {
-      for (int j = 0; j < numCols1; j++) {
-          // std::cout<< hdata1[ci(i,j,numCols2)]<<" ";
-          std::cout<<hdata1[i*numRows1+j]<<" ";
-      }
-      std::cout<< "\n";
+      std::cout<< hdata1[i] << " ";
   }
   //cudaFree(data1);
   return 0;
