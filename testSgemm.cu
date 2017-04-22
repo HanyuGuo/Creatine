@@ -6,10 +6,10 @@ int ci(int row, int column, int nColumns) {
 }
 int main(int argc, char const *argv[]) {
   int rowA, rowB, colA, colB,rowC, colC;
-  rowA = 5;
-  colA = 2;
+  rowA = 10;
+  colA = 10;
   rowB = colA;
-  colB = 3;
+  colB = 1;
   rowC = rowA;
   colC = colB;
   float *ddata1, *ddata2, *resdata;
@@ -26,7 +26,7 @@ int main(int argc, char const *argv[]) {
 
 for (int i = 0; i < rowB; ++i) {
   for (int j = 0; j < colB; j++) {
-       data2[ci(i,j,colB)] = i;
+       data2[ci(i,j,colB)] = 1;
 
   }
 }

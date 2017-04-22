@@ -243,13 +243,14 @@ void cudaMatrix::powgpu(int scale, int n){
 
 void cudaMatrix::expgpu(int n) {
   cudaError_t err;
-  int block_x = 512; // for max threads per block
+  int block_x = 32; // for max threads per block
   int grid_x = (numElems-1)/block_x;
-  dim3 grid(grid_x,1,1);
-  dim3 block(block_x,1,1);
+  dim3 grid(grid_x);
+  dim3 block(block_x,1);
   expgpu_kernel <<<grid, block >>>(devData, n);
   cudaDeviceSynchronize();
   err = cudaGetLastError();
+  printf("err: %d\n",err);
   if (err != cudaSuccess) {
     printf("Couldn't launch exp gpu kernel..\n");
   }
@@ -326,27 +327,25 @@ void cudaMatrix::calc_activation_gpu(Activation a, cudaMatrix &tgt) {
    activations_on_gpu(devData,numElems,a,tgt.getDevData());
 }
 
+void cudaMatrix::cudaDivideByVector(const cudaMatrix &b){
+     cudaError_t err;
+     int block_x = 32;
+     int block_y = 32;
+     int grid_x = (numElems)/block_x;
+     dim3 grid(grid_x,1,1);
+     dim3 block(block_x,block_y);
+     DivideByScalar <<< grid, block >>> (devData,b.getDevData(),numRows, numRows);
+     err = cudaGetLastError();
+     printf("err %d",err);
+     if (err != cudaSuccess) {
+       printf("can't divide by scalar.\n");
+     }
+}
 
-void cudaMatrix::softmax_gpu(cudaMatrix &tgt){
-   cudaError_t err;
-   int block_x = 3;
-  //  int grid_x = numElems/block_x;
-  //  int grid_y = numElems/block_y;
-  float sum;
-  float *int_res = new float[numRows];
+/* b must be a unit vector for this to work! */
+void cudaMatrix::softmax_gpu(const cudaMatrix &b, cudaMatrix &tgt){
+  this->expgpu(numElems);
+  this->gemm_ongpu(false,false,b,1,0,tgt);
+  this->cudaDivideByVector(tgt);
 
-   dim3 grid(1, 1);
-   dim3 block(block_x,1);
-   expgpu_kernel <<<grid,block>>>(devData,numRows);
-   cudaMemcpy(int_res,devData,numRows*sizeof(float),cudaMemcpyDeviceToHost);
-   for (int i = 0; i < numRows; ++i) {
-     sum += int_res[i];
-
-   }
-   printf("Sum: %.2f \n", sum);
-   DivideByScalar<<<grid, block >>>(devData,tgt.getDevData(),sum,numRows);
-   err = cudaGetLastError();
-   if (err != cudaSuccess) {
-     printf("Can't softmax...\n");
-   }
 }

@@ -69,10 +69,11 @@ __global__ void add_mat_vec_kernel(float *a, float *b, int nr, int nc,float scal
 
 }
 
-__global__ void DivideByScalar(float *x, float *y, float scale, int n){
+__global__ void DivideByScalar(float *x, float *scale, int nr, int nc){
   int idx = blockDim.x*blockIdx.x + threadIdx.x;
-  if (idx < n) {
-    y[idx] = x[idx]/scale;
+  int idy = blockDim.y*blockIdx.y + threadIdx.y;
+  if (idx < nc && idy < nr) {
+    x[idy*nr+idx] = x[idy*nr+idx]/scale[idy];
   }
 
 }
