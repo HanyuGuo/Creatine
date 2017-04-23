@@ -45,8 +45,8 @@ public:
   void cudaWeightedAdd(const cudaMatrix &b,cudaMatrix &c,float scale); // WeightedAdd kernel.
   void cudaElemWiseMult(const cudaMatrix &b, cudaMatrix &c);
   void cudaElemWiseDivide(const cudaMatrix &b, cudaMatrix &c);
-  void powgpu(int scale, int n);
-  void expgpu(int n);
+  void powgpu(int scale);
+  void expgpu();
   void axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy, cudaMatrix &tgt); // perform axpy by striding the vector in a column major format
   void axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy);
   void gemm_ongpu(bool tA, bool tB, const cudaMatrix &b, float scaleA, float scaleB, cudaMatrix &tgt); // Sgemm on GPU.

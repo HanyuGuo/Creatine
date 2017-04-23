@@ -38,23 +38,26 @@ __global__ void EltWiseMatDivide(float *a, float *b, float *c,int numRows, int n
 
 
 __global__ void  powgpu_kernel(float *a, int n,  int scale){
-  int id = (blockIdx.x + gridDim.x*blockIdx.y)*blockDim.x + threadIdx.x;
-  if (id < n) {
+    int id = blockIdx.x * blockDim.x + threadIdx.x;
+  while (id < n) {
     a[id] = pow(a[id],scale);
+    id += gridDim.x*blockDim.x;
   }
 }
 
 __global__ void expgpu_kernel(float *a, int n){
-  int id = (blockIdx.x + gridDim.x*blockIdx.y)*blockDim.x + threadIdx.x;
-  if (id < n) {
+  // int id = (blockIdx.x + gridDim.x*blockIdx.y)*blockDim.x + threadIdx.x;
+  int id = blockIdx.x * blockDim.x + threadIdx.x;
+  while (id < n) {
     a[id] = exp(a[id]);
+    id +=   gridDim.x*blockDim.x;
   }
 }
 
 
 __global__ void axpy_kernel(float *a, float *b, float scaleA,int lda,int ldy, int n, float *y){
-  int id = (blockIdx.x + gridDim.x*blockIdx.y)*blockDim.x + threadIdx.x;
-  if (id<n) {
+  int id = blockIdx.x * blockDim.x + threadIdx.x;
+  while (id<n) {
        y[id*ldy] = scaleA*a[id*lda]+b[id*lda];
       //  printf("%.2f ",y[id*ldy]);
   }
@@ -65,6 +68,7 @@ __global__ void add_mat_vec_kernel(float *a, float *b, int nr, int nc,float scal
     int idy = blockIdx.y*blockDim.y+threadIdx.y;
     if (idx < nc && idy < nr) {
         y[idy*nr+idx] = a[idy*nr+idx]+b[idx];
+        // id +=   gridDim.x*blockDim.x;
     }
 
 }

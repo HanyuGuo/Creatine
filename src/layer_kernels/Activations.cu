@@ -96,13 +96,11 @@ __device__ float select_activation(float x, Activation a) {
 
 
 __global__ void launch_activations_on_gpu(float *x,int numElems,Activation a, float *y){
-    int blockId = blockIdx.x + gridDim.x*blockIdx.y;
-    // int idx = blockIdx.x*blockDim.x + threadIdx.x;
-    // int idy = blockIdx.y*blockDim.y + threadIdx.y;
-    int i = blockId*blockDim.x + threadIdx.x;
-    if (i < numElems) {
+  int i = (blockIdx.x + blockIdx.y*gridDim.x) * blockDim.x + threadIdx.x;
+  if(i < numElems) {
       y[i] = select_activation(x[i],a);
       // printf("i:%d, %.2f \n",i,y[idx]);
+      // id += gridDim.x*blockIdx.x;
     }
 
 

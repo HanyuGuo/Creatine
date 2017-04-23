@@ -223,14 +223,14 @@ void cudaMatrix::cudaElemWiseDivide(const cudaMatrix &b, cudaMatrix &c) {
 }
 
 
-void cudaMatrix::powgpu(int scale, int n){
+void cudaMatrix::powgpu(int scale){
   cudaError_t err;
-  int block_x = 512; // for max threads per block
+  int block_x = 1024; // for max threads per block
   int grid_x = (numElems-1)/block_x;
   // int grid_y = (numElems-1)/block_x;
   dim3 grid(grid_x,1,1);
   dim3 block(block_x,1,1);
-  powgpu_kernel <<<grid, block >>>(devData,n,scale);
+  powgpu_kernel <<<grid, block >>>(devData,numElems,scale);
   cudaDeviceSynchronize();
   err = cudaGetLastError();
   if (err != cudaSuccess) {
@@ -241,13 +241,13 @@ void cudaMatrix::powgpu(int scale, int n){
 
 
 
-void cudaMatrix::expgpu(int n) {
+void cudaMatrix::expgpu() {
   cudaError_t err;
-  int block_x = 32; // for max threads per block
+  int block_x = 512; // for max threads per block
   int grid_x = (numElems-1)/block_x;
   dim3 grid(grid_x);
   dim3 block(block_x,1);
-  expgpu_kernel <<<grid, block >>>(devData, n);
+  expgpu_kernel <<<grid, block >>>(devData, numElems);
   cudaDeviceSynchronize();
   err = cudaGetLastError();
   printf("err: %d\n",err);
@@ -259,7 +259,7 @@ void cudaMatrix::expgpu(int n) {
 
 void cudaMatrix::axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy,cudaMatrix &tgt){
   cudaError_t err;
-  int block_x = 512;
+  int block_x = 32;
   int grid_x = (numElems-1)/block_x;
   dim3 grid(grid_x,1,1);
   dim3 block(block_x,1,1);
@@ -344,7 +344,7 @@ void cudaMatrix::cudaDivideByVector(const cudaMatrix &b){
 
 /* b must be a unit vector for this to work! */
 void cudaMatrix::softmax_gpu(const cudaMatrix &b, cudaMatrix &tgt){
-  this->expgpu(numElems);
+  this->expgpu();
   this->gemm_ongpu(false,false,b,1,0,tgt);
   this->cudaDivideByVector(tgt);
 
