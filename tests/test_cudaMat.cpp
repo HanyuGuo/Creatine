@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   float *hdata1;
   float *hdata2;
   float *resdata;
-  int numRows1 = 200, numCols1 = 200;
+  int numRows1 = 200, numCols1 = 2000;
   int numRows2 = 200, numCols2 = 2000;
   // int numRows2 = 1, numCols2 = 3;
   // int numelems = numRows*numCols;
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < numRows1; ++i) {
     for (int j = 0; j < numCols1; ++j) {
       // data1[i*numRows1 +j] = i+j;
-      data1[ci(i,j,numCols1)] = i+j;
+      data1[ci(i,j,numCols1)] = -i;
 
     }
 
@@ -58,8 +58,9 @@ int main(int argc, char *argv[]) {
    cudaMatrix cm1(data1,numRows1,numCols1);
    cudaMatrix cm2(data2, numRows2,numCols2);
    cudaMatrix res(numRows1,numCols2);
-   cm1.softmax_gpu(cm2,res);
-  // cm1.calc_activation_gpu(LINEAR,res);
+   cudaMatrix res1(numRows1,numCols1);
+   // cm1.softmax_gpu(cm2,res);
+  cm1.calc_activation_gpu(SIGMOID,res1);
   // cm1.gemm_ongpu(false,false, cm2,1,0,res);
   //  std::cout<<"Setting device data..\n";
   //  cm1.setDeviceData(data1,numRows1*numCols1);
@@ -77,7 +78,7 @@ int main(int argc, char *argv[]) {
   // Activation a = LOGISTIC;
   // activations_on_gpu(data1,numelems,a);
   //cudaMemcpy(hdata2,data1,numelems*sizeof(float),cudaMemcpyDeviceToHost);
-  cm1.getDeviceData(hdata2);
+  res1.getDeviceData(hdata2);
   // res.getDeviceData(hdata1);
   //
   for (int i = 0; i < numRows1; i++) {
