@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
    cudaMatrix res(numRows1,numCols2);
    cudaMatrix res1(numRows1,numCols1);
    // cm1.softmax_gpu(cm2,res);
-  cm1.calc_activation_gpu(SIGMOID,res1);
+  cm1.calc_activation_gpu(RELU,res1);
   // cm1.gemm_ongpu(false,false, cm2,1,0,res);
   //  std::cout<<"Setting device data..\n";
   //  cm1.setDeviceData(data1,numRows1*numCols1);
