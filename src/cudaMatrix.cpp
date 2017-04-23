@@ -348,4 +348,5 @@ void cudaMatrix::softmax_gpu(const cudaMatrix &b, cudaMatrix &tgt){
   this->gemm_ongpu(false,false,b,1,0,tgt);
   this->cudaDivideByVector(tgt);
 
+
 }

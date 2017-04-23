@@ -60,6 +60,7 @@ __global__ void axpy_kernel(float *a, float *b, float scaleA,int lda,int ldy, in
   while (id<n) {
        y[id*ldy] = scaleA*a[id*lda]+b[id*lda];
       //  printf("%.2f ",y[id*ldy]);
+       id += gridDim.x*blockDim.x;
   }
 }
 
