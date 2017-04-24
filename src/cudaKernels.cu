@@ -48,12 +48,12 @@ __global__ void  powgpu_kernel(float *a, int n,  int scale){
 
 __global__ void expgpu_kernel(float *a, int n, float* y){
   // int id = (blockIdx.x + gridDim.x*blockIdx.y)*blockDim.x + threadIdx.x;
-  int id = blockIdx.x * blockDim.x + threadIdx.x;
+  int id = blockIdx.x*blockDim.x + threadIdx.x;
 
   while (id < n) {
     y[id] = exp(a[id]);
     
-    id +=   gridDim.x*blockDim.x;
+    id +=  gridDim.x*blockDim.x;
   }
 }
 
@@ -129,28 +129,28 @@ __global__ void DivideByScalar(float *x, float *scale, int nr, int nc){
 
 
 __global__ void calc_max(int bs, int nc, float *x, float *max) {
-   int index = blockIdx.x*blockDim.x + threadIdx.x;
-   
-   if (index < bs) {
-      float maxval = x[index * nc];
-      for (int i = index * nc + 1 ; i < (index + 1) * nc; i ++) {
-        maxval = max(maxval, x[i]);
-      }
-      max[index] = maxval;
-     
-   }
+  int index = blockIdx.x*blockDim.x + threadIdx.x;
+  while (index < bs) {
+    float maxval = x[index * nc];
+    for (int i = index * nc + 1 ; i < (index + 1) * nc; i ++) {
+      maxval = max(maxval, x[i]);
+    }
+    max[index] = maxval;
+    index += blockDim.x * gridDim.x;
+  }
      
 
 }
 
 
 __global__ void subtract_max(int bs, int nc, float *x, float *max, float *y){
-  int index = blockIdx.x*blockDim.x + threadIdx.x;
+  int index = blockIdx.x * blockDim.x + threadIdx.x;
   while (index < bs*nc)
   {
     y[index] = x[index] - max[index / nc];
+    // if (index > 500)
+    // printf("%d ",gridDim.x);
     index += gridDim.x * blockDim.x;  
-
   }
 
 }
@@ -158,8 +158,7 @@ __global__ void subtract_max(int bs, int nc, float *x, float *max, float *y){
 
 __global__ void calc_sum_row(int bs, int nc, float *x, float *r_sum){
   int index = blockIdx.x*blockDim.x + threadIdx.x;
-  
-  if (index < bs)
+  while (index < bs)
   {
     float sum = 0;
     for (int i = index*nc; i < (index+1)*nc; i++){
@@ -167,6 +166,7 @@ __global__ void calc_sum_row(int bs, int nc, float *x, float *r_sum){
     }
 
     r_sum[index] = sum;
+    index += gridDim.x * blockDim.x;  
   }
 }
 

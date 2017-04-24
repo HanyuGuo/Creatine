@@ -355,30 +355,25 @@ void cudaMatrix::softmax_gpu(cudaMatrix &tgt){
   float * temp_exp;
   cudaMalloc((void**)&temp_exp, numRows*numCols*sizeof(float));
   std::cout << "calculating max....";
-
-
-  calc_max <<<1,numRows >>>(numRows,numCols,devData,temp_max);
-
+  int block,grid;
+  this->getkernelConfig(true,&block, &grid);
+  calc_max <<<grid,block>>>(numRows,numCols,devData,temp_max);
   err1 = cudaGetLastError();
   std::cout<< "err1 "<< err1;
-  subtract_max <<<numCols,numRows>>>(numRows,numCols,devData,temp_max, temp_subtract);
+  this->getkernelConfig(false, &block, &grid);
+  subtract_max <<<grid,block>>>(numRows,numCols,devData,temp_max, temp_subtract);
   err2 = cudaGetLastError();
   std::cout<< "err2 "<< err2;
-  expgpu_kernel<<<numCols,numRows>>>(temp_subtract,numRows*numCols, temp_exp);
+  this->getkernelConfig(false, &block, &grid);
+  expgpu_kernel<<<grid,block>>>(temp_subtract,numRows*numCols, temp_exp);
   err3 = cudaGetLastError();
   std::cout<<"err3 "<<err3;
-  // std::cout << "calc_sum_row....";
-  calc_sum_row<<<numCols,numRows>>>(numRows,numCols,temp_exp, temp_max);
+  this->getkernelConfig(true, &block, &grid);
+  calc_sum_row<<<grid,block>>>(numRows,numCols,temp_exp, temp_max);
   err4 = cudaGetLastError();
   std::cout<< "err4 "<< err4;
-  // std::cout<<"Done!\n exponentiating...";
-  // 
-  // 
-  // std::cout<< "err3 "<< err3;
-  // std::cout<<"Done!\n summing rows..";
-  // 
-  // std::cout<<"Done! \n dividing rows...";
-  div_row<<<numCols, numRows>>>(numRows,numCols,temp_exp,temp_max,tgt.getDevData());
+  this->getkernelConfig(false, &block, &grid);
+  div_row<<<grid,block>>>(numRows,numCols,temp_exp,temp_max,tgt.getDevData());
   err5 = cudaGetLastError();
   std::cout<< "err5 "<< err5; 
   // cudaFree(scale);

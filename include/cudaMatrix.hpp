@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+
 #include "../include/cudaKernels.cuh"
 #include "../include/Activations.cuh"
 #define BLOCK_L 32
@@ -55,8 +56,26 @@ public:
   void calc_activation_gpu(Activation a, cudaMatrix &tgt);
   void softmax_gpu(cudaMatrix &tgt);
   void cudaDivideByVector(const cudaMatrix &b);
-  inline int creatine_grid_dim(const int N){
-    return (N+BLOCK_XL-1)/BLOCK_XL;
+  void getkernelConfig(bool isRow, int *block, int *grid){
+     if (isRow)
+     {  
+        if (numRows > 512) {
+         *block = 512;
+         *grid = (int)((numRows)/(*block)) + 1;
+        }
+        else {
+          *block = numRows;
+          *grid = 1;
+        }
+
+     } else {
+       // if (numRows > 65535)
+       // {
+        
+       // }
+       *block = 512;
+       *grid = (int)(numCols*numRows/(*block)) + 1;
+     }
   }
 };
 

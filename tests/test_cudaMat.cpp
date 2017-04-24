@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   float *hdata1;
   float *hdata2;
   float *resdata;
-  int numRows1 = 512, numCols1 = 10;
+  int numRows1 = 2000, numCols1 = 10;
   int numRows2 = 200, numCols2 = 2000;
   // int numRows2 = 1, numCols2 = 3;
   // int numelems = numRows*numCols;
@@ -22,7 +22,8 @@ int main(int argc, char *argv[]) {
   // data1 = new float[numRows1*numCols1];
   data2 = new float[numRows2*numCols2];
   hdata1= new float[numRows1*numCols1];
-  hdata2 = new float[numRows1*numCols1];
+  int ResnumCols = 10;
+  hdata2 = new float[numRows1*ResnumCols];
   // resdata = new float[numRows1*numCols1];
   for (int i = 0; i < numRows1; ++i) {
     for (int j = 0; j < numCols1; ++j) {
@@ -58,7 +59,7 @@ int main(int argc, char *argv[]) {
    cudaMatrix cm1(data1,numRows1,numCols1);
    cudaMatrix cm2(data2, numRows2,numCols2);
    cudaMatrix res(numRows1,numCols2);
-   cudaMatrix res1(numRows1,numCols1);
+   cudaMatrix res1(numRows1,ResnumCols);
    cm1.softmax_gpu(res1);
   // cm1.calc_activation_gpu(RELU,res1);
   // cm1.gemm_ongpu(false,false, cm2,1,0,res);
@@ -83,8 +84,8 @@ int main(int argc, char *argv[]) {
   // res.getDeviceData(hdata1);
   
   for (int i = 0; i < numRows1; i++) {
-    for (size_t j = 0; j < numCols1; j++) {
-       std::cout<< hdata2[ci(i,j,numCols1)] << " ";
+    for (size_t j = 0; j < ResnumCols; j++) {
+       std::cout<< hdata2[ci(i,j,ResnumCols)] << " ";
     }
    // std::cout<<"\n";
   }
