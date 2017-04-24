@@ -1,10 +1,12 @@
 #ifndef _CUDA_MATRIX_HPP_
 #define _CUDA_MATRIX_HPP_
-#include<iostream>
+#include <iostream>
 #include <vector>
-#include<algorithm>
+#include <algorithm>
 #include "../include/cudaKernels.cuh"
 #include "../include/Activations.cuh"
+#define BLOCK_L 32
+#define BLOCK_XL 512
 
 class cudaMatrix {
 private:
@@ -46,13 +48,16 @@ public:
   void cudaElemWiseMult(const cudaMatrix &b, cudaMatrix &c);
   void cudaElemWiseDivide(const cudaMatrix &b, cudaMatrix &c);
   void powgpu(int scale);
-  void expgpu();
+  void expgpu(cudaMatrix &tgt);
   void axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy, cudaMatrix &tgt); // perform axpy by striding the vector in a column major format
   void axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy);
   void gemm_ongpu(bool tA, bool tB, const cudaMatrix &b, float scaleA, float scaleB, cudaMatrix &tgt); // Sgemm on GPU.
   void calc_activation_gpu(Activation a, cudaMatrix &tgt);
-  void softmax_gpu(const cudaMatrix &b, cudaMatrix &tgt);
+  void softmax_gpu(cudaMatrix &tgt);
   void cudaDivideByVector(const cudaMatrix &b);
+  inline int creatine_grid_dim(const int N){
+    return (N+BLOCK_XL-1)/BLOCK_XL;
+  }
 };
 
 

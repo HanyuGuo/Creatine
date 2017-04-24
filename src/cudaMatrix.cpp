@@ -241,13 +241,13 @@ void cudaMatrix::powgpu(int scale){
 
 
 
-void cudaMatrix::expgpu() {
+void cudaMatrix::expgpu(cudaMatrix &tgt) {
   cudaError_t err;
   int block_x = 512; // for max threads per block
   int grid_x = (numElems-1)/block_x;
   dim3 grid(grid_x);
   dim3 block(block_x,1);
-  expgpu_kernel <<<grid, block >>>(devData, numElems);
+  expgpu_kernel <<<grid, block >>>(devData, numElems, tgt.getDevData());
   cudaDeviceSynchronize();
   err = cudaGetLastError();
   printf("err: %d\n",err);
@@ -343,10 +343,47 @@ void cudaMatrix::cudaDivideByVector(const cudaMatrix &b){
 }
 
 /* b must be a unit vector for this to work! */
-void cudaMatrix::softmax_gpu(const cudaMatrix &b, cudaMatrix &tgt){
-  this->expgpu();
-  this->gemm_ongpu(false,false,b,1,0,tgt);
-  this->cudaDivideByVector(tgt);
+void cudaMatrix::softmax_gpu(cudaMatrix &tgt){
+  cudaError_t err1,err2,err3,err4,err5;
+  float *scale;
+  cudaMalloc((void**)&scale, numRows*sizeof(float));
+  float * temp_max;
+  cudaMalloc((void**)&temp_max, numRows*sizeof(float));
+  float * temp_subtract;
+  cudaMalloc((void**)&temp_subtract, numRows*numCols*sizeof(float));
+  // calculate the max;
+  float * temp_exp;
+  cudaMalloc((void**)&temp_exp, numRows*numCols*sizeof(float));
+  std::cout << "calculating max....";
 
+
+  calc_max <<<1,numRows >>>(numRows,numCols,devData,temp_max);
+
+  err1 = cudaGetLastError();
+  std::cout<< "err1 "<< err1;
+  subtract_max <<<numCols,numRows>>>(numRows,numCols,devData,temp_max, temp_subtract);
+  err2 = cudaGetLastError();
+  std::cout<< "err2 "<< err2;
+  expgpu_kernel<<<numCols,numRows>>>(temp_subtract,numRows*numCols, temp_exp);
+  err3 = cudaGetLastError();
+  std::cout<<"err3 "<<err3;
+  // std::cout << "calc_sum_row....";
+  calc_sum_row<<<numCols,numRows>>>(numRows,numCols,temp_exp, temp_max);
+  err4 = cudaGetLastError();
+  std::cout<< "err4 "<< err4;
+  // std::cout<<"Done!\n exponentiating...";
+  // 
+  // 
+  // std::cout<< "err3 "<< err3;
+  // std::cout<<"Done!\n summing rows..";
+  // 
+  // std::cout<<"Done! \n dividing rows...";
+  div_row<<<numCols, numRows>>>(numRows,numCols,temp_exp,temp_max,tgt.getDevData());
+  err5 = cudaGetLastError();
+  std::cout<< "err5 "<< err5; 
+  // cudaFree(scale);
+  cudaFree(temp_max);
+  cudaFree(temp_subtract);
+  cudaFree(temp_exp);
 
 }
