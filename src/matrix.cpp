@@ -264,11 +264,11 @@ void Matrix::reduce_sum(Matrix &sum) {
   }
 }
 
-void Matrix::max(const float scale, Matrix &target) {
-  _elemWiseLoop(&_max, scale, target);
+void Matrix::Max(const float scale, Matrix &target) {
+  _elemWiseLoop(&_Max, scale, target);
 }
 
-float Matrix::max() const{
+float Matrix::Max() const{
   float max = (*this)(0,0); 
   for (int i=0; i < getNumRows(); i++) {
     for (int j=0; j < getNumCols(); j++) {

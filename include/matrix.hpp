@@ -91,8 +91,8 @@ public:
   void ln(Matrix &target);
   void log(Matrix &target);
   void reduce_sum(Matrix &sum); // only do all to one currently
-  float max() const;
-  void max(const float scale, Matrix &target);
+  float Max() const;
+  void Max(const float scale, Matrix &target);
   void reluGrads(const Matrix &m, Matrix &target);
   void sigmoidGrads(const Matrix &m,  Matrix &target);
   void argmax(float * result);

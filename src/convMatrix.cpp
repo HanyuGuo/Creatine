@@ -8,6 +8,28 @@ void convMatrix::_init(float* data, int D0, int D1, int D2, int D3) {
   _numElements = D0*D1*D2*D3;
 }
 
+void convMatrix::_init_gpu(float *data, int D0,int D1, int D2, int D3){
+  cudaError_t err;
+  _data = NULL;
+  _D0 = D0;
+  _D1 = D1;
+  _D2 = D2;
+  _D3 = D3;
+  _numElements = D0*D1*D2*D3;
+   if (data != NULL) {
+    std::cout << "got data!\n";
+    if (_numElements > 0) {
+      cudaMalloc((void**)&_data, _numElements*sizeof(float));
+      cudaMemcpy(_data,data,_numElements*sizeof(float),cudaMemcpyHostToDevice);
+      err = cudaGetLastError();
+      if (err != cudaSuccess) {
+       std::cout << "Couldn't allocate memory\n";
+      }
+    }
+  }
+}
+
+
 convMatrix::convMatrix() {
   _init(NULL, 0, 0, 0, 0);
 }
@@ -17,8 +39,17 @@ convMatrix::convMatrix(int D0, int D1, int D2, int D3) {
   this->_data = _numElements > 0 ? new float[this->_numElements] : NULL;
 }
 
-convMatrix::convMatrix(float* data, int D0, int D1, int D2, int D3) {
-  _init(data, D0, D1, D2, D3);
+convMatrix::convMatrix(float* data, int D0, int D1, int D2, int D3, bool isGPU) {
+  if (isGPU)
+  {
+    _init_gpu(data,D0,D1,D2,D3);
+  } else {
+    _init(data, D0, D1, D2, D3);
+  }
+  
+    
+  
+  
 }
 
 void convMatrix::assign(float* data) {
@@ -86,9 +117,24 @@ void convMatrix::flatten(Matrix &target) {
   }
 }
 
-void convMatrix::fwdpassconvgpu(const cudaMatrix &weights, cudaMatrix &col, int bs, int channels,int height, int width, int stride, int padding, int kern_sz, int col_height, int col_width, cudaMatrix &tgt){
+// convMatrix & convMatrix::sliceMatrix(int height, int width, int startRow, int startCol, int endRow, int endCol, int channels, bool isGPU) const {
+//    if (isGPU)
+//    {
+     
+//    } else {
+//       return *new convMatrix(this->_data+)
+//    }
 
-    for (int i = 0; i < bs; ++i) {
+
+// }
+void convMatrix::fwdpassconvgpu(cudaMatrix &weights, cudaMatrix &col, int stride, int padding, int kern_sz, int col_height, int col_width, cudaMatrix &tgt){
+    int bs = this->getDim(0);
+    int height = this->getDim(1);
+    int width = this->getDim(2);
+    int channels = this->getDim(3);
+
+
+    for (int i = 0; i < this->getDim(0); ++i) {
         im2col_gpu(_data,channels,height,width,kern_sz,stride,pad,col_height,col_width,col.getDevData()); // convert an ip heightxwidthxchannel 3d matrix to a 2d one.
         col.gemm_ongpu(false,false,weights,1,0,tgt);
     }

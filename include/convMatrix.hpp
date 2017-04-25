@@ -13,6 +13,8 @@
 extern "C" {
   #include <cblas.h>
 }
+#include "../include/cudaMatrix.hpp"
+
 
 
 class convMatrix {
@@ -21,10 +23,13 @@ private:
   int _D0, _D1, _D2, _D3;
   int _numElements;
   void _init(float* data, int D0, int D1, int D2, int D3);
+  void _init_gpu(float *data, int D0, int D1, int D2, int D3);
+  
 public:
   convMatrix();
   convMatrix(int D0, int D1, int D2, int D3);
-  convMatrix(float* data, int D0, int D1, int D2, int D3);
+  convMatrix(float* data, int D0, int D1, int D2, int D3, bool isGPU);
+  // convMatrix(float *data, int D0, int D1, int D2, int D3, bool isGPU);
   inline float& getCell(int i, int j, int m, int n) {
     assert(i >= 0 && i < _D0);
     assert(j >= 0 && j < _D1);
@@ -56,11 +61,12 @@ public:
   inline int getNumElements() const {
     return _numElements;
   }
+  // convMatrix & sliceMatrix(int height, int width,int startRow, int startCol, int endRow, int endCol,int channels, bool isGPU) const;
   void assign(float* data);
   void print_data();
   void convolve(convMatrix &filter, int stride, bool samePadding,  convMatrix &target);
   void flatten(Matrix &target);
-  void fwdpassconvgpu(const cudaMatrix &weights, cudaMatrix col,int bs, int channels, int height, int width, int stride, int padding, int kern_sz, int col_height, int col_width, cudaMatrix &tgt); // calc fwd pass gpu.
+  void fwdpassconvgpu(cudaMatrix &weights, cudaMatrix &col,int stride, int padding, int kern_sz, int col_height, int col_width, cudaMatrix &tgt); // calc fwd pass gpu.
 };
 
 #endif

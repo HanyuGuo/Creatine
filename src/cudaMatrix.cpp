@@ -55,6 +55,7 @@ cudaMatrix::cudaMatrix(int numrows, int numcols){
 }
 
 
+
 cudaMatrix::cudaMatrix(float *data, int numrows, int numcols){
    _init(data,numrows,numcols);
 }
