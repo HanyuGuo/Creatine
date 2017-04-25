@@ -19,7 +19,7 @@ private:
 public:
   cudaConvMatrix();
   cudaConvMatrix(float *data, int bs, int height, int width, int channels);
-  cudaConvMatrix(int bs, int height, int width, int channels, int pad,int kern_sz, int stride);
+  cudaConvMatrix(int bs, int height, int width, int channels);
     ~ConvLayer();
    int getnDim(const int n) const{
     switch(n){

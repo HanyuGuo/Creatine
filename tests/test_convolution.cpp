@@ -1,7 +1,7 @@
 #include <iostream>
 #include "../include/im2col.cuh"
 #include "../include/cudaMatrix.hpp"
-#include "../include/convMatrix.hpp"
+#include "../include/convcudamatrix.hpp"
 
 
 int main(void)
@@ -58,13 +58,16 @@ int main(void)
     int channels = 3;
     int stride = 2;
     int kern_sz=3;
-    int height = 5;
+    int height = 30;
     int width = 5;
     int col_width = kern_sz*kern_sz*channels;
     int col_height = ((height-kern_sz/2)/stride)*((width-kern_sz/2)/stride);
     int pad = 1;
     int bs = 4;
-    convMatrix cv1(data1,2,5,5,3,true);
+    cudaConvMatrix cv1(&data1,bs,height,width,channels);
+    cudaConvMatrix fl(&filter,2,3,3,3);
+    cudaConvMatrix tgt();
+    
     // float *col = new float[col_width*col_height];
     // float *ddata, *dcol;
     // cudaMalloc((void**)&ddata, height*width*sizeof(float));

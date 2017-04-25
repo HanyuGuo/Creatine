@@ -34,7 +34,7 @@ int main(void){
 					      0,1,0,1,0,
 					      0,2,2,1,1,
 					      2,1,1,2,0,
-					      2,1,0,1,2,};
+					      2,1,0,1,2};
 	float filer_w[] = {-1, 0,-1,
 					    0, 1, 0,
 					    0,-1, 0,
@@ -52,7 +52,7 @@ int main(void){
 					    0, 1, 1,
 					    1, 0,-1,
 					   -1, 1, 1,
-					    0,-1, 0 };
+					    0,-1, 0};
 	convMatrix input(input_data, 2, 5, 5, 3);
 	convMatrix filter(filer_w, 3, 3, 3, 2);
 	convMatrix target(2, 3, 3, 2);

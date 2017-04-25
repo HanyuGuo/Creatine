@@ -17,7 +17,7 @@ void cudaConvMatrix::_init(float *data, int bs, int height, int width, int chann
   // cudaSetDevice(gpuid);
   if (data != NULL) {
     std::cout << "got data!\n";
-    if (numElems > 0) {
+    if (n_elems > 0) {
       cudaMalloc((void**)&devData, n_elems*sizeof(float));
       cudaMemcpy(devData,data,n_elems*sizeof(float),cudaMemcpyHostToDevice);
       err = cudaGetLastError();
@@ -28,7 +28,7 @@ void cudaConvMatrix::_init(float *data, int bs, int height, int width, int chann
   }
   else {
     std::cout << "empty data!\n";
-    if (numElems > 0) {
+    if (n_elems > 0) {
       cudaMalloc((void**)&devData, n_elems*sizeof(float));
       err = cudaGetLastError();
       if (err != cudaSuccess) {
@@ -47,10 +47,22 @@ cudaConvMatrix::cudaConvMatrix(float *data, int bs, int height, int width, int c
 	_init(data,bs,height,width,channels,1,3,1);
 }
 
-cudaConvMatrix::cudaConvMatrix(int bs, int height, int width, int channels,int pad, int kern_sz,int stride){
-	_init(NULL,bs,height,width, channels,pad, kern_sz,stride);
+cudaConvMatrix::cudaConvMatrix(int bs, int height, int width, int channels){
+	_init(NULL,bs,height,width, channels,1,3,1);
 }
 
+cudaConvMatrix::~cudaConvMatrix()
+{
+  cudaError_t err;
+  if (n_elems > 0 ) {
+      cudaFree(devData);
+      err = cudaGetLastError();
+
+      if (err != cudaSuccess) {
+        std::cout << "Can't free memory\n";
+      }
+  }
+}
 // void cudaConvMatrix::gemm_conv_gpu(bool tA, bool tB, const cudaConvMatrix &b, float scaleA, float scaleB, cudaConvMatrix &tgt int offset){
 // cudaError_t err;
 //   int m = b.getnDim(2);
@@ -89,8 +101,15 @@ void cudaConvMatrix::fwd_pass_convolution_gpu(cudaConvMatrix &weights, cudaConvM
 	for (int i = 0; i < _bs; ++i)
 	{
 	   im2col_gpu(devData+i*_height*_width*_ch_in,_ch_in, _height,_width,_kern_sz,_stride,_pad,col_height,col_width,col);
-       cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,m,n,k,&scaleA,weights.getDevData(),k);  	   
+     cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,m,n,k,&scaleA,weights.getDevData(),k,col,n,&scaleB,tgt.getDevData()+i*m*n,n); 
+     err = cudaGetLastError();
+    if (err != cudaSuccess) {
+      printf("Cannot do Sgemm..\n");
+    } 	   
     }
-
-
+  cudaFree(col);
 }
+
+
+
+
