@@ -2,22 +2,22 @@ test:cudaMatrix.o test_convolution.o cudaKernel.o Activations.o im2col.o convcud
 	nvcc cudaMatrix.o test_convolution.o cudaKernel.o Activations.o im2col.o convcudamatrix.o -o cudaTest -lcudart -lcuda -lcublas
 
 cudaMatrix.o: src/cudaMatrix.cpp
-	nvcc -arch=sm_35 -x cu -I. -dc $< -o $@
+	nvcc  -arch=sm_35 -x cu -I. -dc $< -o $@
 
 test_convolution.o:tests/test_convolution.cpp
 	nvcc -arch=sm_35 -x cu -I. -dc $< -o $@
 
 test_cudaMat.o:tests/test_cudaMat.cpp
-	nvcc -arch=sm_35 -x cu -I. -dc $< -o $@
+	nvcc  -arch=sm_35 -x cu -I. -dc $< -o $@
 
 cudaKernel.o:src/cudaKernels.cu
-	nvcc -c $< -o $@
+	nvcc  -c $< -o $@
 
 Activations.o:src/layer_kernels/Activations.cu
-	nvcc -c $< -o $@
+	nvcc  -c $< -o $@
 
 convcudamatrix.o:src/convcudamatrix.cpp 
-	nvcc -c $< -o $@
+	nvcc  -arch=sm_35 -x cu -I. -dc $< -o $@
 
 im2col.o:src/layers/im2col.cu
 	nvcc -c $< -o $@

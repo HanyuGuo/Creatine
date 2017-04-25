@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/convcudamatrix.h"
+#include "../include/convcudamatrix.hpp"
 
 
 void cudaConvMatrix::_init(float *data, int bs, int height, int width, int channels,int pad, int kern_sz, int stride){
@@ -87,6 +87,7 @@ cudaConvMatrix::~cudaConvMatrix()
 
 
 void cudaConvMatrix::fwd_pass_convolution_gpu(cudaConvMatrix &weights, cudaConvMatrix &tgt){
+  cudaError_t err;
 	int col_height = ((_height-_kern_sz/2)/_stride)*((_width-_kern_sz/2)/_stride);
 	int col_width = _kern_sz*_kern_sz*_ch_in;
 	float *col;
@@ -99,17 +100,15 @@ void cudaConvMatrix::fwd_pass_convolution_gpu(cudaConvMatrix &weights, cudaConvM
     float scaleB = 1.f;
 	cudaMalloc((void**)&col,col_width*col_height*sizeof(float));
 	for (int i = 0; i < _bs; ++i)
-	{
-	   im2col_gpu(devData+i*_height*_width*_ch_in,_ch_in, _height,_width,_kern_sz,_stride,_pad,col_height,col_width,col);
-     cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,m,n,k,&scaleA,weights.getDevData(),k,col,n,&scaleB,tgt.getDevData()+i*m*n,n); 
+	{  
+    im2col_gpu(devData+i*_height*_width*_ch_in,_ch_in, _height,_width,_kern_sz,_stride,_pad,col_height,col_width,col);
+    cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,m,n,k,&scaleA,weights.getDevData(),k,col,n,&scaleB,tgt.getDevData()+i*m*n,n); 
      err = cudaGetLastError();
     if (err != cudaSuccess) {
       printf("Cannot do Sgemm..\n");
-    } 	   
+    }      
     }
+   // +i*_height*_width*_ch_in
   cudaFree(col);
 }
-
-
-
 

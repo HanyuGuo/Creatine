@@ -64,11 +64,25 @@ int main(void)
     int col_height = ((height-kern_sz/2)/stride)*((width-kern_sz/2)/stride);
     int pad = 1;
     int bs = 4;
-    cudaConvMatrix cv1(&data1,bs,height,width,channels);
-    cudaConvMatrix fl(&filter,2,3,3,3);
-    cudaConvMatrix tgt();
-    
-    // float *col = new float[col_width*col_height];
+
+    cudaConvMatrix cv1(data1,2,5,5,3);
+    cudaConvMatrix fl(filter,3,3,3,2);
+    cudaConvMatrix tgt(2,5,5,3);
+    cv1.fwd_pass_convolution_gpu(fl,tgt);
+    float * result;
+    result = new float[2*5*5*2];
+    tgt.convgetData(result);
+    for (int i = 0; i < 2; i ++) {
+    	for (int m = 0; m < 5; m++) {
+    		for (int n = 0; n < 5; n++ ) {
+    			for (int k = 0; k < 3; k ++) {
+    				std::cout << result(i,m,n,k) << " "; 
+    			}
+    		}
+    	}
+    }
+     // float *col = new float[col_width*col_height];
+    }
     // float *ddata, *dcol;
     // cudaMalloc((void**)&ddata, height*width*sizeof(float));
     // cudaMalloc((void**)&dcol, col_height*col_width*sizeof(float));
