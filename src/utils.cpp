@@ -17,7 +17,7 @@ void load(const char* path, float* weights) {
 }
 
 
-int Equal(const float * a,const float * b, int len) {
+int Equal(const int * a,const int * b, int len) {
   int correct = 0;
   for (int j = 0; j < len; j++) {
     if(a[j] == b[j])
@@ -26,7 +26,7 @@ int Equal(const float * a,const float * b, int len) {
   return correct;
 }
 
-void argmax(const float* input, float* result, int w, int h) {
+void argmax(const float* input, int* result, int w, int h) {
   for (int i=0; i < h; i++) {
     float temp = input[i*w];
     result[i] = 0;

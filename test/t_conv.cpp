@@ -5,65 +5,29 @@
 using namespace std;
 
 int main(void){
-	float input_data[] = {1,1,2,0,1,
-					      2,0,1,1,2,
-					      0,2,2,1,0,
-					      0,0,1,0,1,
-					      0,2,0,0,1,
-					      0,1,2,0,0,
-					      2,2,1,0,2,
-					      2,1,2,2,0,
-					      1,0,1,0,1,
-					      0,0,1,0,1,
-					      1,0,1,2,2,
-					      0,1,0,1,0,
-					      0,2,2,1,1,
-					      2,1,1,2,0,
-					      2,1,0,1,2,
-					  	  1,1,2,0,1,
-					      2,0,1,1,2,
-					      0,2,2,1,0,
-					      0,0,1,0,1,
-					      0,2,0,0,1,
-					      0,1,2,0,0,
-					      2,2,1,0,2,
-					      2,1,2,2,0,
-					      1,0,1,0,1,
-					      0,0,1,0,1,
-					      1,0,1,2,2,
-					      0,1,0,1,0,
-					      0,2,2,1,1,
-					      2,1,1,2,0,
-					      2,1,0,1,2,};
-	float filer_w[] = {-1, 0,-1,
-					    0, 1, 0,
-					    0,-1, 0,
-					    0, 1, 0,
-					    1, 0, 1,
-					    0,-1, 1,
-					    1,-1, 1,
-					    0, 0, 1,
-					    0,-1, 0,
-					    1,-1,-1,
-					    0,-1, 1,
-					    0,-1, 1,
-					    1, 1, 0,
-					    1, 0, 0,
-					    0, 1, 1,
-					    1, 0,-1,
-					   -1, 1, 1,
-					    0,-1, 0 };
-	convMatrix input(input_data, 2, 5, 5, 3);
-	convMatrix filter(filer_w, 3, 3, 3, 2);
-	convMatrix target(2, 3, 3, 2);
-	input.convolve(filter,2,true, target);
-	Matrix flat(2, 3*3*2);
-	target.print_data();
-	target.flatten(flat);
-	for (int i = 0; i < flat.getNumRows(); i++) {
-		for (int j = 0; j < flat.getNumCols(); j++) {
-			std::cout << flat(i,j) << " ";
+	
+	float input_data[] = {0,  1,  2,  3};
+  	float filer_w[] = {0,   1,   2,   3,   4,   5,   6,   7};
+   	// float correct[] = {18}
+   	convMatrix input(input_data, 1, 2, 2, 1);
+	convMatrix filter(filer_w, 2, 2, 1, 2);
+	convMatrix target(1, 2, 2, 2);
+	input.convolve(filter,1, true, target);
+	// Matrix flat(1, 14*14*5);
+	// target.print_data();
+	// target.flatten(flat);
+	// float sum = 0;
+	for (int i = 0; i < target.getDim(0); i++) {
+		for (int j = 0; j < target.getDim(1); j++) {
+			for (int m = 0; m < target.getDim(2); m++) {
+				for (int n = 0; n < target.getDim(3); n++) {
+					std::cout <<target(i,j,m,n) << " ";
+				}
+				std:: cout << "\n";
+			}
+			std:: cout << "\n";
 		}
 		std:: cout << "\n";
 	}
+	// std:: cout << sum << "\n";
 }

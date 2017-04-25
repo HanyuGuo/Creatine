@@ -2,15 +2,15 @@ import tensorflow as tf
 import numpy as np
 
 
-data = np.array([1.0,1,2,0,1,2,0,1,1,2,0,2,2,1,0,0,0,1,0,1,0,2,0,0,1,0,1,2,0,0,2,2,1,0,2,2,1,2,2,0,1,0,1,0,1,0,0,1,0,1,1,0,1,2,2,0,1,0,1,0,0,2,2,1,1,2,1,1,2,0,2,1,0,1,2, 1.0,1,2,0,1,2,0,1,1,2,0,2,2,1,0,0,0,1,0,1,0,2,0,0,1,0,1,2,0,0,2,2,1,0,2,2,1,2,2,0,1,0,1,0,1,0,0,1,0,1,1,0,1,2,2,0,1,0,1,0,0,2,2,1,1,2,1,1,2,0,2,1,0,1,2], dtype=np.float32)
-filter_w = np.array([-1.0, 0,-1, 0, 1, 0, 0,-1, 0, 0, 1, 0, 1, 0, 1, 0,-1, 1, 1,-1, 1, 0, 0, 1, 0,-1, 0, 1,-1,-1, 0,-1, 1, 0,-1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0,-1,-1, 1, 1, 0,-1, 0], dtype=np.float32)
+data = np.array([np.arange(64)], dtype=np.float32)
+filter_w = np.array([np.arange(8)], dtype=np.float32)
 
-data = data.reshape(2,5,5,3)
-filter_w = filter_w.reshape(3,3,3,2)
+data = data.reshape(4,4,2,2)
+filter_w = filter_w.reshape(2,2,2,1)
 
 
 
-result = tf.nn.conv2d(data, filter_w, strides=[1,2,2,1], padding="SAME")
+result = tf.nn.conv2d(data, filter_w, strides=[1,1,1,1], padding="SAME")
 
 SessConfig = tf.ConfigProto(
         device_count = {'GPU': 0}
@@ -18,6 +18,7 @@ SessConfig = tf.ConfigProto(
 # Launch the graph
 sess = tf.Session(config=SessConfig)
 
-print(sess.run(result))
+print(sess.run(result)).shape
+
 
 

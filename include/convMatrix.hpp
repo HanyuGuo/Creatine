@@ -59,6 +59,8 @@ public:
   void print_data();
   void convolve(convMatrix &filter, int stride, bool samePadding,  convMatrix &target);
   void flatten(Matrix &target);
+  void max(const int scale, convMatrix &target);
+  ~convMatrix();
 };
-
+  
 #endif

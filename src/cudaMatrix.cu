@@ -18,7 +18,7 @@ void cudaMatrix::_init(float *data, int numrows, int numcols){
   setbestcudaDevice();
   cudaSetDevice(gpuid);
   if (data != NULL) {
-    std::cout << "got data!\n";
+    // std::cout << "got data!\n";
     if (numElems > 0) {
       cudaMalloc((void**)&devData, numElems*sizeof(float));
       cudaMemcpy(devData,data,numElems*sizeof(float),cudaMemcpyHostToDevice);
@@ -29,7 +29,7 @@ void cudaMatrix::_init(float *data, int numrows, int numcols){
     }
   }
   else {
-    std::cout << "empty data!\n";
+    // std::cout << "empty data!\n";
     if (numElems > 0) {
       cudaMalloc((void**)&devData, numElems*sizeof(float));
       err = cudaGetLastError();
@@ -123,7 +123,7 @@ void cudaMatrix::getDeviceData(float *hdata) {
     float *adata = devData;
     float *bdata = b.getDevData();
     float *resdata = c.getDevData();
-    std::cout<<"Launching kernel now...\n";
+    // std::cout<<"Launching kernel now...\n";
     MatAddKernel<<<grid, block>>>(adata,bdata,resdata,numRows, numCols);
     err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -149,7 +149,7 @@ void cudaMatrix::cudaWeightedAdd(const cudaMatrix &b, cudaMatrix &c, float scale
     float *adata = devData;
     float *bdata = b.getDevData();
     float *resdata = c.getDevData();
-    std::cout << "Launching Weighted Add..." << '\n';
+    // std::cout << "Launching Weighted Add..." << '\n';
     WeightedAddKernel<<< grid, block >>>(adata,bdata,resdata,scale,numRows,numCols);
     err = cudaGetLastError();
     if (err != cudaSuccess) {
@@ -233,13 +233,16 @@ void cudaMatrix::powgpu(int scale){
 
 
 
-void cudaMatrix::expgpu() {
+void cudaMatrix::expgpu(cudaMatrix &tgt) {
   cudaError_t err;
-  int block_x = 512; // for max threads per block
-  int grid_x = (numElems-1)/block_x;
-  dim3 grid(grid_x,1,1);
-  dim3 block(block_x,1,1);
-  expgpu_kernel <<<grid, block >>>(devData, numElems);
+  int block_dim_x = 32;
+  int block_dim_y = 32;
+  int grid_dim_x = numRows/block_dim_x + 1;
+  int grid_dim_y = numCols/block_dim_y + 1;
+  // std:: cout << numRows << " " << numCols << "\n";
+  dim3 grid(grid_dim_x, grid_dim_y,1);
+  dim3 block(block_dim_x,block_dim_y);
+  expgpu_kernel <<<grid, block >>>(devData, numElems, tgt.getDevData());
   cudaDeviceSynchronize();
   err = cudaGetLastError();
   if (err != cudaSuccess) {
@@ -280,11 +283,9 @@ void cudaMatrix::gemm_ongpu(bool tA, bool tB, const cudaMatrix &b, float scaleA,
   int m = b.getNumCols();
   int n = numRows;
   int k = numCols;
-  // float *rsa = reshape_data(devData,numRows,numCols);
-  // float *rsb = reshape_data(b.getDevData(),b.getNumRows(), b.getNumCols());
   cublasHandle_t handle;
   cublasCreate(&handle);
-  if ((tgt.getNumCols() != b.getNumCols()) && (tgt.getNumRows()!=numRows)) {
+  if ((tgt.getNumCols() != b.getNumCols()) || (tgt.getNumRows()!=numRows)) {
      std::cout << "Matrix dimensions are not same .. aborting \n";
      exit(1);
   }
@@ -299,15 +300,97 @@ void cudaMatrix::gemm_ongpu(bool tA, bool tB, const cudaMatrix &b, float scaleA,
 }
 void cudaMatrix::cudaAddv(const cudaMatrix &b, float scale, cudaMatrix &c) {
     cudaError_t err;
-    int block_dim_x = 4;
-    int block_dim_y = 4;
-    int grid_dim_x = (numRows*numCols)/block_dim_x;
-    int grid_dim_y = (numRows*numCols)/block_dim_y;
-    dim3 grid(grid_dim_x, grid_dim_y,1);
-    dim3 block(block_dim_x,block_dim_y);
-    add_mat_vec_kernel <<<grid, block >>> (devData,b.getDevData(),numRows,numCols,scale,c.getDevData());
+    // int block_dim_x = 4;
+    // int block_dim_y = 4;
+    // int grid_dim_x = (numRows*numCols)/block_dim_x;
+    // int grid_dim_y = (numRows*numCols)/block_dim_y;
+
+    // dim3 grid(grid_dim_x, grid_dim_y,1);
+    // dim3 block(block_dim_x,block_dim_y);
+    // add_mat_vec_kernel <<<grid, block >>> (devData,b.getDevData(),numRows,numCols,scale,c.getDevData());
+    int block_dim_x = 512;
+    int grid_dim_x = (numRows*numCols)/block_dim_x + 1;
+
+    dim3 grid(grid_dim_x, 1,1);
+    dim3 block(block_dim_x,1);
+    add_mat_vec_kernel <<<grid, block >>> (devData,b.getDevData(),numRows,numCols,c.getDevData());
     err = cudaGetLastError();
     if (err != cudaSuccess) {
       printf("can't add matrices and vectors.\n");
     }
+
+
+
+}
+
+
+void cudaMatrix::calc_activation_gpu(Activation a, cudaMatrix &tgt) {
+   activations_on_gpu(devData,numElems,a,tgt.getDevData());
+}
+
+
+void cudaMatrix::cudaDivideByVector(const cudaMatrix &b, cudaMatrix &tgt){
+     cudaError_t err;
+     int block_x = 32;
+     int block_y = 32;
+     int grid_x = (numElems)/block_x;
+     dim3 grid(grid_x,1,1);
+     dim3 block(block_x,block_y);
+     DivideByScalar <<< grid, block >>> (devData,b.getDevData(),numRows, numRows, tgt.getDevData());
+     err = cudaGetLastError();
+     printf("err %d",err);
+     if (err != cudaSuccess) {
+       printf("can't divide by scalar.\n");
+     }
+}
+
+
+/* b must be a unit vector for this to work! */
+void cudaMatrix::softmax_gpu(cudaMatrix &tgt){
+  // cudaError_t err1,err2,err3,err4,err5;
+  float * temp_max;
+  cudaMalloc((void**)&temp_max, numRows*sizeof(float));
+  float * temp_subtract;
+  cudaMalloc((void**)&temp_subtract, numRows*numCols*sizeof(float));
+  float * temp_exp;
+  cudaMalloc((void**)&temp_exp, numRows*numCols*sizeof(float));
+  // std::cout << "calculating max....";
+  int block,grid;
+  this->getkernelConfig(true,&block, &grid);
+  calc_max <<<grid,block>>>(numRows,numCols,devData,temp_max);
+  // err1 = cudaGetLastError();
+  // std::cout<< "err1 "<< err1;
+  this->getkernelConfig(false, &block, &grid);
+  subtract_max <<<grid,block>>>(numRows,numCols,devData,temp_max, temp_subtract);
+  // err2 = cudaGetLastError();
+  // std::cout<< "err2 "<< err2;
+  this->getkernelConfig(false, &block, &grid);
+  expgpu_kernel<<<grid,block>>>(temp_subtract,numRows*numCols, temp_exp);
+  // err3 = cudaGetLastError();
+  // std::cout<<"err3 "<<err3;
+  this->getkernelConfig(true, &block, &grid);
+  calc_sum_row<<<grid,block>>>(numRows,numCols,temp_exp, temp_max);
+  // err4 = cudaGetLastError();
+  // std::cout<< "err4 "<< err4;
+  this->getkernelConfig(false, &block, &grid);
+  div_row<<<grid,block>>>(numRows,numCols,temp_exp,temp_max,tgt.getDevData());
+  // err5 = cudaGetLastError();
+  // std::cout<< "err5 "<< err5; 
+  // cudaFree(scale);
+  cudaFree(temp_max);
+  cudaFree(temp_subtract);
+  cudaFree(temp_exp);
+
+}
+
+
+void cudaMatrix::argmax_gpu(int* result) {
+  int block,grid;
+  int * temp_result;
+  cudaMalloc((void**)&temp_result, numRows*sizeof(int));
+  this->getkernelConfig(true, &block, &grid);
+  argmax <<<grid,block>>>(numRows,numCols,devData, temp_result);
+  cudaMemcpy(result,temp_result, numRows*sizeof(int),cudaMemcpyDeviceToHost);
+  cudaFree(temp_result);
+
 }

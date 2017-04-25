@@ -18,9 +18,23 @@ run_gpu.cpp
 
 export PATH=/usr/local/cuda-8.0/bin:$PATH
 
-nvcc --std=c++11 -o run ../src/matrix.cpp  ../src/utils.cpp ../src/layers/layer.cpp ../src/cudaKernels.cu ../src/cudaMatrix.cu run_gpu.cpp -lcudart -lcuda -lcublas -lcblas
+nvcc --std=c++11 -o run ../src/matrix.cpp  ../src/utils.cpp ../src/layers/layer.cpp ../src/cudaKernels.cu ../src/cudaMatrix.cu ../src/activations.cu run_gpu.cpp -lcudart -lcuda -lcublas -lcblas
+
 
 
 t_conv.cpp
 
-g++ -Wall -std=c++11 -o run ../src/convMatrix.cpp   t_conv.cpp
+g++ -Wall -std=c++11 -o run ../src/convMatrix.cpp  ../src/matrix.cpp  t_conv.cpp -lcblas
+
+
+
+t_conv_fc.cpp
+
+export PATH=/usr/local/cuda-8.0/bin:$PATH
+
+nvcc --std=c++11 -o run ../src/matrix.cpp  ../src/utils.cpp ../src/layers/layer.cpp ../src/convMatrix.cpp ../src/cudaKernels.cu ../src/cudaMatrix.cu t_conv_fc.cpp -lcudart -lcuda -lcublas -lcblas
+
+
+run_fw.cpp
+
+nvcc --std=c++11 -o run ../src/matrix.cpp  ../src/utils.cpp ../src/layers/layer.cpp ../src/convMatrix.cpp ../src/cudaKernels.cu ../src/cudaMatrix.cu run_fw.cpp -lcudart -lcuda -lcublas -lcblas

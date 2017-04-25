@@ -4,6 +4,7 @@
 #include <vector>
 #include<algorithm>
 #include "../include/cudaKernels.cuh"
+#include "../include/activations.cuh"
 
 class cudaMatrix {
 private:
@@ -30,21 +31,41 @@ public:
   void getDeviceData(float *hdata); // get device data in host pointer.
   inline float * getDevData() const {
     return devData;
-
-
   }
   void cudaAddv(const cudaMatrix &b, float scale, cudaMatrix &tgt);
-  // float * reshape_data(float *data, int numCols, int numRows);
-  void cudaAdd(const cudaMatrix &b, cudaMatrix &c); // Matrix addition kernel.
+
+  void cudaAdd(const cudaMatrix &b, cudaMatrix &tgt); // Matrix addition kernel.
   void cudaWeightedAdd(const cudaMatrix &b,cudaMatrix &c,float scale); // WeightedAdd kernel.
   void cudaElemWiseMult(const cudaMatrix &b, cudaMatrix &c);
   void cudaElemWiseDivide(const cudaMatrix &b, cudaMatrix &c);
   void powgpu(int scale);
-  void expgpu();
+  void expgpu(cudaMatrix &tgt);
   void axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy, cudaMatrix &tgt); // perform axpy by striding the vector in a column major format
   void axpy_ongpu(const cudaMatrix &b, float scaleA, int ldx, int ldy);
   void gemm_ongpu(bool tA, bool tB, const cudaMatrix &b, float scaleA, float scaleB, cudaMatrix &tgt); // Sgemm on GPU.
+  void calc_activation_gpu(Activation a, cudaMatrix &tgt);
+  void softmax_gpu(cudaMatrix &tgt);
+  void cudaDivideByVector(const cudaMatrix &b, cudaMatrix &tgt);
+  void argmax_gpu(int* result);
+  inline void getkernelConfig(bool isRow, int *block, int *grid){
+     if (isRow)
+     {  
+        if (numRows > 512) {
+         *block = 512;
+         *grid = (int)((numRows)/(*block)) + 1;
+        }
+        else {
+          *block = numRows;
+          *grid = 1;
+        }
+
+     } else {
+       *block = 512;
+       *grid = (int)(numCols*numRows/(*block)) + 1;
+     }
+  }
 };
+
 
 
 
