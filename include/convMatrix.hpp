@@ -60,7 +60,7 @@ public:
   void print_data();
   void convolve(convMatrix &filter, int stride, bool samePadding,  convMatrix &target);
   void flatten(Matrix &target);
-  void fwdpassconvgpu(const convMatrix &weights, convMatrix col,int bs, int channels, int height, int width, int stride, int padding, int kern_sz, int col_height, int col_width, convMatrix &tgt); // calc fwd pass gpu.
+  void fwdpassconvgpu(const cudaMatrix &weights, cudaMatrix col,int bs, int channels, int height, int width, int stride, int padding, int kern_sz, int col_height, int col_width, cudaMatrix &tgt); // calc fwd pass gpu.
 };
 
 #endif

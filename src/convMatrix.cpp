@@ -86,17 +86,10 @@ void convMatrix::flatten(Matrix &target) {
   }
 }
 
-void convMatrix::fwdpassconvgpu(const convMatrix &weights, convMatrix col, int bs, int channels,int height, int width, int stride, int padding, int kern_sz, int col_height, int col_width, convMatrix &tgt){
+void convMatrix::fwdpassconvgpu(const cudaMatrix &weights, cudaMatrix &col, int bs, int channels,int height, int width, int stride, int padding, int kern_sz, int col_height, int col_width, cudaMatrix &tgt){
 
     for (int i = 0; i < bs; ++i) {
-        im2col_gpu(_data,channels,height,width,kern_sz,stride,pad,col_height,col_width,col.getData()); // convert an ip heightxwidthxchannel 3d matrix to a 2d one.
-        float *a = col.getData();
-        float *b = weights.getData();
-        float *c = tgt.getData();
-        /* @hanyug:
-           --> Gemm needs to be re-written for convMatrix??
-           -->  
-         */
-        gemm_ongpu(false,false,)
+        im2col_gpu(_data,channels,height,width,kern_sz,stride,pad,col_height,col_width,col.getDevData()); // convert an ip heightxwidthxchannel 3d matrix to a 2d one.
+        col.gemm_ongpu(false,false,weights,1,0,tgt);
     }
 }
