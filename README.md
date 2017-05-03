@@ -8,9 +8,9 @@ Please uncompress data and place data folder under Creatine main folder.
 download data from 
 https://drive.google.com/open?id=0Bxdo6EJu5OjTQkkzOVh1REM3RkE
 
-Decompress it to the main folder of Creatine
+Decompress it to the root folder of Creatine
 
-##Install
+## Install
 In the main folder of Creatine 
 
 make
@@ -22,3 +22,4 @@ make
 3. Fully Connected Layer DEEP Example  
 4. Fully Connected Layer DEEP and WIDE Example  
 
+ 
