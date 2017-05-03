@@ -2,7 +2,7 @@
 
 Creatine: A Simple Deep Learning Framework     - by Hanyu Guo, Ankit Kulshrestha
 
-download data from 
+Download data from 
 https://drive.google.com/open?id=0Bxdo6EJu5OjTQkkzOVh1REM3RkE
 
 Decompress it to the root folder of Creatine
