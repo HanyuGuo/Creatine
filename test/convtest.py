@@ -5,7 +5,7 @@ import numpy as np
 data = np.array([np.arange(64)], dtype=np.float32)
 filter_w = np.array([np.arange(8)], dtype=np.float32)
 
-data = data.reshape(4,4,2,2)
+data = data.reshape(2,4,4,2)
 filter_w = filter_w.reshape(2,2,2,1)
 
 
@@ -18,7 +18,7 @@ SessConfig = tf.ConfigProto(
 # Launch the graph
 sess = tf.Session(config=SessConfig)
 
-print(sess.run(result)).shape
+print(sess.run(result))
 
 
 

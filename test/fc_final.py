@@ -21,14 +21,14 @@ batch_size = 100
 display_step = 1
 
 # Network Parameters
-n_hidden_1 = 256 # 1st layer number of features
-n_hidden_2 = 512 # 2nd layer number of features
-n_hidden_3 = 512 # 1st layer number of features
-n_hidden_4 = 1024 # 2nd layer number of features
-n_hidden_5 = 1024 # 1st layer number of features
-n_hidden_6 = 512 # 2nd layer number of features
-n_hidden_7 = 512 # 1st layer number of features
-n_hidden_8 = 256 # 2nd layer number of features
+n_hidden_1 = 2000 # 1st layer number of features
+n_hidden_2 = 2500 # 2nd layer number of features
+n_hidden_3 = 3000 # 1st layer number of features
+n_hidden_4 = 4000 # 2nd layer number of features
+n_hidden_5 = 4000 # 1st layer number of features
+n_hidden_6 = 3000# 2nd layer number of features
+n_hidden_7 = 2500 # 1st layer number of features
+n_hidden_8 = 2000 # 2nd layer number of features
 n_input = 784 # MNIST data input (img shape: 28*28)
 n_classes = 10 # MNIST total classes (0-9 digits)
 
@@ -168,25 +168,25 @@ bb8 = sess.run(biases['b8'])
 bb9 = sess.run(biases['out'])
 
 
-np.savetxt("./d_h1.txt", ww1.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_h2.txt", ww2.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_h3.txt", ww3.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_h4.txt", ww4.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_h5.txt", ww5.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_h6.txt", ww6.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_h7.txt", ww7.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_h8.txt", ww8.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_hout.txt", ww9.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_h1.txt", ww1.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_h2.txt", ww2.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_h3.txt", ww3.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_h4.txt", ww4.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_h5.txt", ww5.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_h6.txt", ww6.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_h7.txt", ww7.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_h8.txt", ww8.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_hout.txt", ww9.reshape(-1), delimiter=',', newline=',')
 
-np.savetxt("./d_b1.txt", bb1.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_b2.txt", bb2.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_b3.txt", bb3.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_b4.txt", bb4.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_b5.txt", bb5.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_b6.txt", bb6.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_b7.txt", bb7.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_b8.txt", bb8.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./d_bout.txt", bb9.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_b1.txt", bb1.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_b2.txt", bb2.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_b3.txt", bb3.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_b4.txt", bb4.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_b5.txt", bb5.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_b6.txt", bb6.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_b7.txt", bb7.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_b8.txt", bb8.reshape(-1), delimiter=',', newline=',')
+np.savetxt("./f_bout.txt", bb9.reshape(-1), delimiter=',', newline=',')
 
 
 

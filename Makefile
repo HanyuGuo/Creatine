@@ -1,27 +1,34 @@
-test:cudaMatrix.o test_convolution.o cudaKernel.o activations.o im2col.o convcudamatrix.o col2im.o
-	nvcc cudaMatrix.o test_convolution.o cudaKernel.o activations.o im2col.o convcudamatrix.o  col2im.o -o cudaTest -lcudart -lcuda -lcublas
+run:cudaMatrix.o main.o cudaKernel.o matrix.o utils.o layer.o convMatrix.o activations.o
+	nvcc cudaMatrix.o cudaKernel.o main.o matrix.o utils.o layer.o convMatrix.o activations.o -o run -lcudart -lcuda -lcublas -lcblas
 
 cudaMatrix.o: src/cudaMatrix.cu
-	nvcc  -arch=sm_35 -x cu -I. -dc $< -o $@
+	nvcc -arch=sm_35 -x cu -I. -dc $< -o $@
 
-test_convolution.o:test/test_convolution.cu
+main.o:test/main.cpp
 	nvcc -arch=sm_35 -x cu -I. -dc $< -o $@
 
 
+
 cudaKernel.o:src/cudaKernels.cu
-	nvcc  -c $< -o $@
-
-activations.o:src/activations.cu
-	nvcc  -c $< -o $@
-
-convcudamatrix.o:src/convcudamatrix.cu
-	nvcc  -arch=sm_35 -x cu -I. -dc $< -o $@
-
-im2col.o:src/im2col.cu
 	nvcc -c $< -o $@
 
-col2im.o:src/col2im.cu
+activations.o:src/activations.cu
+	nvcc -c $< -o $@
+
+
+matrix.o: src/matrix.cpp
+	nvcc -c $< -o $@
+
+utils.o: src/utils.cpp 
+	nvcc -std=c++11 -c $< -o $@
+
+layer.o: src/layers/layer.cpp
+	nvcc -arch=sm_35 -x cu -I. -dc $< -o $@
+
+convMatrix.o: src/convMatrix.cpp
 	nvcc -c $< -o $@
 
 clean:
 	rm *.o
+
+

@@ -99,7 +99,14 @@ print("Optimization Finished!")
 correct_prediction = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
 # Calculate accuracy
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-print("Accuracy:", sess.run(accuracy, {x: mnist.test.images, y: mnist.test.labels}))
+
+import time
+bs = 20
+start = time.time()
+for i in range(mnist.test.images.shape[0]/bs):
+    print("Accuracy:", sess.run(accuracy, {x: mnist.test.images[i*bs:(i+1)*bs], y: mnist.test.labels[i*bs:(i+1)*bs]}))
+end = time.time()
+print(end - start)
 
 
 # sess.run(logits, {x: mnist.test.images[:5], y: mnist.test.labels[:5]})
@@ -133,22 +140,7 @@ np.savetxt("./w_bout.txt", bb9.reshape(-1), delimiter=',', newline=',')
 
 
 
-bb1 = sess.run(b1)
-ww2 = sess.run(W2)
-bb2 = sess.run(b2)
-np.savetxt("./layer_1_weight_wide_8000.txt", ww1.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./layer_1_bias_wide_8000.txt", bb1.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./layer_2_weight_wide_8000.txt", ww2.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./layer_2_bias_wide_8000.txt", bb2.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./mnist_images.txt", mnist.test.images.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./mnist_labels.txt", mnist.test.labels.reshape(-1), delimiter=',', newline=',')
 
 
 
 
-np.savetxt("./layer_1_weight_wide_8000.txt", ww1.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./layer_1_bias_wide_8000.txt", bb1.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./layer_2_weight_wide_8000.txt", ww2.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./layer_2_bias_wide_8000.txt", bb2.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./mnist_images.txt", mnist.test.images.reshape(-1), delimiter=',', newline=',')
-np.savetxt("./mnist_labels.txt", mnist.test.labels.reshape(-1), delimiter=',', newline=',')

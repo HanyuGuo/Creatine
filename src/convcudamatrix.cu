@@ -1,5 +1,8 @@
 #include <iostream>
 #include "../include/convcudamatrix.cuh"
+extern "C" {
+  #include <cblas.h>
+}
 
 
 void cudaConvMatrix::_init(float *data, int D0, int D1, int D2, int D3){
@@ -107,11 +110,12 @@ void cudaConvMatrix::convolve(cudaConvMatrix &weights, bool samePadding, int str
   // int col_height = ((in_height-filter_height/2)/stride)*((in_width-filter_width/2)/stride);
   // int col_width = filter_height*filter_width*in_channels;
   // std::cout << "col_height:" << col_height << " col_width: " <<  col_width << "\n";
+  // int m = batch;
   int m = out_channels; 
   int k = filter_height * filter_width * in_channels;
   int n = out_height * out_width;
   float* temp;
-  cudaMalloc((void**)&temp, out_channels*out_height*out_width*sizeof(float));
+  cudaMalloc((void**)&temp, in_channels*out_height*out_width*sizeof(float));
   cublasHandle_t handle;
   float scaleA = 1.f;
   float scaleB = 1.f;
@@ -119,10 +123,15 @@ void cudaConvMatrix::convolve(cudaConvMatrix &weights, bool samePadding, int str
     im2col_ongpu(devData + i*in_height*in_width*in_channels,
                  in_channels, in_height, in_width, filter_height, stride,
                  filter_height/2, temp);
-    // float* peek = new float[5];
-    // cudaMemcpy(peek,devData,5*sizeof(float),cudaMemcpyDeviceToHost);
-    // std::cout << peek[0] << peek[1] << peek[2] << peek[3] << peek[4];
-    // cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,m,n,k,&scaleA,weights.getDevData(),k,temp,n,&scaleB,tgt.getDevData()+i*m*n,n); 
+    // float* peek = new float[32];
+    // cudaMemcpy(peek,temp ,32*sizeof(float),cudaMemcpyDeviceToHost);
+
+    // std::cout << peek[0] << peek[1] << peek[2] << peek[3] << peek[4]<<
+    // peek[5] << peek[6] << peek[7];
+    cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,m,n,k,&scaleA,weights.getDevData(),k,temp,n,&scaleB,tgt.getDevData()+i*m*n,n); 
+    // cblasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,m,n,k,&scaleA,weights.getDevData(),k,temp,n,&scaleB,tgt.getDevData()+i*m*n,n); 
+    // cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, m, n, k, 1., temp,
+    // m, weights.getDevData(), k, 1, tgt.getDevData()+i*m*n, out_channels);
     err = cudaGetLastError();
     if (err != cudaSuccess) {
       printf("Cannot do Sgemm..\n");
@@ -132,3 +141,42 @@ void cudaConvMatrix::convolve(cudaConvMatrix &weights, bool samePadding, int str
   
 
 }
+
+
+// void cudaConvMatrix::convolve(cudaConvMatrix &weights, bool samePadding, int stride, cudaConvMatrix &tgt){
+//   cudaError_t err;
+//   int batch = getDim(0);
+//   int in_height = getDim(1);
+//   int in_width = getDim(2);
+//   int in_channels = getDim(3);
+//   int filter_height = weights.getDim(0);
+//   int filter_width = weights.getDim(1);
+//   // int in_channels = filter.getDim(2);
+//   int out_channels = weights.getDim(3);
+//   assert(in_channels == weights.getDim(2)); 
+//   int out_height = tgt.getDim(1);
+//   int out_width = tgt.getDim(2);
+
+//   int m = out_height * out_width; 
+//   int k = filter_height * filter_width * in_channels;
+//   int n = out_channels;
+//   float* temp;
+//   cudaMalloc((void**)&temp, in_channels*out_height*out_width*sizeof(float));
+//   cublasHandle_t handle;
+//   float scaleA = 1.f;
+//   float scaleB = 1.f;
+//   for(int i = 0; i < batch; i++) { 
+//     im2col_ongpu(devData + i*in_height*in_width*in_channels,
+//                  in_channels, in_height, in_width, filter_height, stride,
+//                  filter_height/2, temp);
+
+//     cublasSgemm(handle,CUBLAS_OP_N, CUBLAS_OP_N,m,n,k,&scaleA,weights.getDevData(),k,temp,n,&scaleB,tgt.getDevData()+i*m*n,n); 
+//     err = cudaGetLastError();
+//     if (err != cudaSuccess) {
+//       printf("Cannot do Sgemm..\n");
+//     }   
+//   }
+//   cudaFree(temp);
+  
+
+// }

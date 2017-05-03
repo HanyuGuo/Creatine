@@ -54,15 +54,8 @@ public:
     return getCell(i,j,m,n);
   }
 
-  inline float *getDevData() const{
-    if (devData != NULL)
-    {
-      return devData;
-    } else{
-       std::cout << "Data is not null!"<< "\n";
-       exit(1);
-    }
-
+  inline float * getDevData() const {
+    return devData;
   }
 
   inline void getDeviceData(float *hdata){

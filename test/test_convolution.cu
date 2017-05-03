@@ -12,34 +12,31 @@ int main(void)
        51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63};
 
 	float filter[] = { 0, 1, 2, 3, 4, 5, 6, 7};
-    // int channels = 3;
-    // int stride = 2;
-    // int kern_sz=3;
-    // int height = 30;
-    // int width = 5;
-    // int col_width = kern_sz*kern_sz*channels;
-    // int col_height = ((height-kern_sz/2)/stride)*((width-kern_sz/2)/stride);
-    // int pad = 1;
-    // int bs = 4;
 
-    cudaConvMatrix cv1(data1,4,4,2,2);
+	float data2[] = {0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+        0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+        0.,  0.,  0.,  0.,  0.,  0.};
+
+
+    cudaConvMatrix cv1(data1,2,4,4,2);
     cudaConvMatrix fl(filter,2,2,2,1);
-    cudaConvMatrix tgt(4,4,2,1);
+    cudaConvMatrix tgt(data2, 2,4,4,1);
     cv1.convolve(fl, true, 1, tgt);
 
-    // tgt.device2host();
-    // for (int i = 0; i < 4; i ++) {
-    // 	for (int m = 0; m < 4; m++) {
-    // 		for (int n = 0; n < 2; n++ ) {
-    // 			for (int k = 0; k < 1; k ++) {
-    // 				std::cout << tgt(i,m,n,k) << " "; 
-    // 			}
-    // 			std::cout << "\n"; 
-    // 		}
-    // 		std::cout << "\n"; 
-    // 	}
-    // 	std::cout << "\n"; 
-    // }
+    float * result = new float[4*4*2];
+    tgt.getDeviceData(result);
+    for (int i = 0; i < 2; i ++) {
+    	for (int m = 0; m < 4; m++) {
+    		for (int n = 0; n < 4; n++ ) {
+    			for (int k = 0; k < 1; k ++) {
+    				std::cout << result[i*4*4*1 + m*4 + n+k] << " "; 
+    			}
+    			std::cout << "\n"; 
+    		}
+    		std::cout << "\n"; 
+    	}
+    	std::cout << "\n"; 
+    }
      // float *col = new float[col_width*col_height];
     // float *ddata, *dcol;
     // cudaMalloc((void**)&ddata, height*width*sizeof(float));
